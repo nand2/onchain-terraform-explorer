@@ -2,6 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "hardhat/console.sol";
+import "./libs/ToString.sol";
 
 import {IScriptyBuilder, WrappedScriptRequest} from "./interfaces/IScriptyBuilder.sol";
 
@@ -23,7 +24,7 @@ contract TerraformExplorer {
 
     function indexHTML() public view returns (string memory) {
 
-        WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](2);
+        WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](3);
         requests[0].name = "scriptyBase";
         requests[0].wrapType = 0; // <script>[script]</script>
         requests[0].contractAddress = scriptyStorageAddress;
@@ -40,8 +41,25 @@ contract TerraformExplorer {
         // requests[1].wrapType = 0; // <script>[script]</script>
         // requests[1].scriptContent = "xxx";
 
-        requests[1].wrapType = 4; // [wrapPrefix][script][suffix]
-        requests[1].scriptContent = '<h1 style="text-align: center">Terraform explorer</h1>';
+        requests[1].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
+        requests[1].wrapPrefix = "<style>";
+        requests[1].scriptContent = 'body {background-color: #171717; color: #f5f5f5}';
+        requests[1].wrapSuffix = "</style>";
+
+        requests[2].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
+        requests[2].scriptContent = abi.encodePacked(
+            '<h1 style="text-align: center">Terraform explorer</h1>'
+            '<br />'
+            '<a href="evm://0x', ToString.addressToString(address(this)), '/viewHTML?tokenId:uint256=4197">'
+                '<img src="evm://0x4e1f41613c9084fdb9e34e11fae9412427480e56/tokenSVG?tokenId:uint256=4197" style="width:200px">'
+            '</a>'
+            '<a href="evm://0x', ToString.addressToString(address(this)), '/viewHTML?tokenId:uint256=4198">'
+                '<img src="evm://0x4e1f41613c9084fdb9e34e11fae9412427480e56/tokenSVG?tokenId:uint256=4198" style="width:200px">'
+            '</a>'
+            '<a href="evm://0x', ToString.addressToString(address(this)), '/viewHTML?tokenId:uint256=4199">'
+                '<img src="evm://0x4e1f41613c9084fdb9e34e11fae9412427480e56/tokenSVG?tokenId:uint256=4199" style="width:200px">'
+            '</a>'
+        );
 
         // Random buffer for now
         uint bufferSize = 291925;
@@ -52,5 +70,33 @@ contract TerraformExplorer {
         return string(html);
     }
 
+    function viewHTML(uint256 tokenId) public view returns (string memory) {
+
+        WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](3);
+        requests[0].name = "scriptyBase";
+        requests[0].wrapType = 0; // <script>[script]</script>
+        requests[0].contractAddress = scriptyStorageAddress;
+
+
+        requests[1].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
+        requests[1].wrapPrefix = "<style>";
+        requests[1].scriptContent = 'body {background-color: #171717; color: #f5f5f5}';
+        requests[1].wrapSuffix = "</style>";
+
+        requests[2].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
+        requests[2].scriptContent = abi.encodePacked(
+            '<h1 style="text-align: center">Terraform ', ToString.toString(tokenId), '</h1>'
+            '<br />'
+            '<img src="evm://0x4e1f41613c9084fdb9e34e11fae9412427480e56/tokenSVG?tokenId:uint256=', ToString.toString(tokenId) ,'">'
+        );
+
+        // Random buffer for now
+        uint bufferSize = 291925;
+
+        bytes memory html = IScriptyBuilder(scriptyBuilderAddress)
+            .getHTMLWrapped(requests, bufferSize);
+
+        return string(html);
+    }
 
 }
