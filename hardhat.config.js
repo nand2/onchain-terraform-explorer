@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require('hardhat-contract-sizer');
+require("@nomiclabs/hardhat-etherscan");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -14,5 +15,19 @@ module.exports = {
                 }
             },
         },
-    }
+    },
+    networks: {
+        goerli: {
+            url: process.env.GOERLI_URL,
+            // accounts: [process.env.GOERLI_PRIVATE_KEY],
+        }
+    },
+    mocha: {
+        timeout: 200000
+    },
+  etherscan: {
+    // Your API key for Etherscan
+    // Obtain one at https://etherscan.io/
+    apiKey: process.env.ETHERSCAN_API_KEY
+  }
 };

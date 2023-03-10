@@ -13,7 +13,8 @@ abstract contract TerraformsAdmin is ERC721Enumerable, ReentrancyGuard, Ownable{
     enum Mintpass {None, Unused, Used}
     
     /// @notice Sale information
-    uint public constant PRICE = 0.16 ether; 
+    // uint public constant PRICE = 0.16 ether; 
+    uint public constant PRICE = 0 ether; // Modified for easier testing
     uint public constant MAX_SUPPLY = 11_104;
     uint public constant OWNER_ALLOTMENT = 1_200;
     uint public constant SUPPLY = MAX_SUPPLY - OWNER_ALLOTMENT;

@@ -21,29 +21,37 @@ async function deployFixture() {
 
   const TerraformsCharacters = await ethers.getContractFactory("TerraformsCharacters");
   const terraformsCharacters = await TerraformsCharacters.deploy();
-  for(let i = 0; i < terraformsCharactersFontsB64; i++) {
-    let tx = await terraformsCharacters.addFont(i, terraformsCharacters[i]);
+  console.log("TerraformsCharacters deployed at " + terraformsCharacters.address);
+  for(let i = 0; i < terraformsCharactersFontsB64.length; i++) {
+    let tx = await terraformsCharacters.addFont(i, terraformsCharactersFontsB64[i]);
     let txResult = await tx.wait()
+    console.log("TerraformsCharacters font " + i + ' added');
   }
 
   const TerraformsSVG = await ethers.getContractFactory("TerraformsSVG");
   const terraformsSVG = await TerraformsSVG.deploy(terraformsCharacters.address);
+  console.log("TerraformsSVG deployed at " + terraformsSVG.address);
 
   const PerlinNoise = await ethers.getContractFactory("PerlinNoise");
   const perlinNoise = await PerlinNoise.deploy();
+  console.log("PerlinNoise deployed at " + perlinNoise.address);
 
   const TerraformsZones = await ethers.getContractFactory("TerraformsZones");
   const terraformsZones = await TerraformsZones.deploy();
-
+  console.log("TerraformsZones deployed at " + terraformsZones.address);
 
   const TerraformsData = await ethers.getContractFactory("TerraformsData");
-  const terraformsData = await TerraformsData.deploy(terraformsSVG.address, perlinNoise.address, terraformsZones.address, terraformsCharacters.address);
+  const terraformsData = await TerraformsData.deploy(terraformsSVG.address, perlinNoise.address, terraformsZones.address, terraformsCharacters.address);  
+  console.log("TerraformsData deployed at " + terraformsData.address);
 
   const TerraformsAugmentations = await ethers.getContractFactory("TerraformsAugmentations");
   const terraformsAugmentations = await TerraformsAugmentations.deploy();
+  console.log("TerraformsAugmentations deployed at " + terraformsAugmentations.address);
 
   const Terraforms = await ethers.getContractFactory("Terraforms");
   const terraforms = await Terraforms.deploy(terraformsData.address, terraformsAugmentations.address);
+  console.log("Terraforms deployed at " + terraforms.address);
+
 
   let tx = await terraforms.toggleEarly()
   let txResult = await tx.wait()
@@ -52,12 +60,11 @@ async function deployFixture() {
 
   // If only, I could do that on mainnet....
   let mintCount = 20
-  tx = await terraforms.mint(mintCount, {value: ethers.utils.parseEther('0.16').mul(mintCount)})
-  txResult = await tx.wait()  
+  tx = await terraforms.mint(mintCount)
+  txResult = await tx.wait()
 
   tx = await terraforms.setSeed()
   txResult = await tx.wait()
-
 
   // Goerli values
   let scriptyStorageAddress = "0x730B0ADaaD15B0551928bAE7011F2C1F2A9CA20C";
