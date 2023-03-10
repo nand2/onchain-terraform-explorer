@@ -7,7 +7,7 @@ import "./libs/ToString.sol";
 import {IScriptyBuilder, WrappedScriptRequest} from "./interfaces/IScriptyBuilder.sol";
 
 
-contract TerraformExplorer {
+contract TerraformNavigator {
 
     address public immutable terraformsAddress;
     address public immutable terraformsDataAddress;
@@ -54,7 +54,7 @@ contract TerraformExplorer {
 
         requests[2].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
         requests[2].scriptContent = abi.encodePacked(
-            '<h1 style="text-align: center">Terraform explorer</h1>'
+            '<h1 style="text-align: center">Terraform navigator</h1>'
             '<br />'
             '<a href="evm://0x', ToString.addressToString(address(this)), '/viewHTML?tokenId:uint256=4197">'
                 '<img src="evm://0x4e1f41613c9084fdb9e34e11fae9412427480e56/tokenSVG?tokenId:uint256=4197" style="width:200px">'

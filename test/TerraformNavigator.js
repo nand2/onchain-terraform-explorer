@@ -64,8 +64,8 @@ async function deployFixture() {
   let scriptyBuilderAddress = "0x16b727a2Fc9322C724F4Bc562910c99a5edA5084";
   let ethfsFileStorageAddress = "0xFc7453dA7bF4d0c739C1c53da57b3636dAb0e11e";
 
-  const TerraformExplorer = await ethers.getContractFactory("TerraformExplorer");
-  const terraformExplorer = await TerraformExplorer.deploy(terraforms.address, terraformsData.address, scriptyStorageAddress, scriptyBuilderAddress, ethfsFileStorageAddress);
+  const TerraformNavigator = await ethers.getContractFactory("TerraformNavigator");
+  const terraformExplorer = await TerraformNavigator.deploy(terraforms.address, terraformsData.address, scriptyStorageAddress, scriptyBuilderAddress, ethfsFileStorageAddress);
 
   console.log("Terraforms deployed at " + terraforms.address);
   console.log("TerraformsData deployed at " + terraformsData.address);
@@ -76,7 +76,7 @@ async function deployFixture() {
   return { terraformExplorer };
 }
 
-describe("TerraformExplorer", function () {
+describe("TerraformNavigator", function () {
   it("Index", async function () {
     // const { terraformExplorer } = await loadFixture(deployFixture); // only with hardhat node
     const { terraformExplorer } = await deployFixture();
