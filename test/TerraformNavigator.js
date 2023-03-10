@@ -65,27 +65,29 @@ async function deployFixture() {
   let ethfsFileStorageAddress = "0xFc7453dA7bF4d0c739C1c53da57b3636dAb0e11e";
 
   const TerraformNavigator = await ethers.getContractFactory("TerraformNavigator");
-  const terraformExplorer = await TerraformNavigator.deploy(terraforms.address, terraformsData.address, scriptyStorageAddress, scriptyBuilderAddress, ethfsFileStorageAddress);
+  const terraformNavigator = await TerraformNavigator.deploy(terraforms.address, terraformsData.address, scriptyStorageAddress, scriptyBuilderAddress, ethfsFileStorageAddress);
 
   console.log("Terraforms deployed at " + terraforms.address);
   console.log("TerraformsData deployed at " + terraformsData.address);
-  console.log("Contract deployed at " + terraformExplorer.address);
+  console.log("Contract deployed at " + terraformNavigator.address);
 
-  console.log("Sample terraform: evm://" + terraforms.address + "/tokenHTML?tokenId:uint256=4")
+  console.log("Sample terraform HTML: evm://" + terraforms.address + "/tokenHTML?tokenId:uint256=4")
+  console.log("Sample terraform SVG: evm://" + terraforms.address + "/tokenHTML?tokenId:uint256=4")
+  console.log("Index URL: evm://" + terraformNavigator.address + '/indexHTML?pageNumber:uint256=1');
 
-  return { terraformExplorer };
+  return { terraformNavigator };
 }
 
 describe("TerraformNavigator", function () {
   it("Index", async function () {
-    // const { terraformExplorer } = await loadFixture(deployFixture); // only with hardhat node
-    const { terraformExplorer } = await deployFixture();
+    // const { terraformNavigator } = await loadFixture(deployFixture); // only with hardhat node
+    const { terraformNavigator } = await deployFixture();
 
-    let gasUsage = await terraformExplorer.connect(user1).estimateGas.indexHTML();
-    let result = await terraformExplorer.connect(user1).indexHTML();
+    let gasUsage = await terraformNavigator.connect(user1).estimateGas.indexHTML(1);
+    let result = await terraformNavigator.connect(user1).indexHTML(1);
 
-    console.log(result);
-    console.log("Gas used: ", gasUsage.toNumber())
+    // console.log(result);
+    // console.log("Gas used: ", gasUsage.toNumber())
   });
 
 });

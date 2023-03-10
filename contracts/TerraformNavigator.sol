@@ -3,6 +3,9 @@ pragma solidity ^0.8.18;
 
 import "hardhat/console.sol";
 import "./libs/ToString.sol";
+import "./interfaces/ITerraforms.sol";
+import "./interfaces/ITerraformsData.sol";
+import "./interfaces/ITerraformsDataInterfaces.sol";
 
 import {IScriptyBuilder, WrappedScriptRequest} from "./interfaces/IScriptyBuilder.sol";
 
@@ -11,6 +14,7 @@ contract TerraformNavigator {
 
     address public immutable terraformsAddress;
     address public immutable terraformsDataAddress;
+
     address public immutable scriptyStorageAddress;
     address public immutable scriptyBuilderAddress;
     address public immutable ethfsFileStorageAddress;
@@ -28,7 +32,11 @@ contract TerraformNavigator {
         ethfsFileStorageAddress = _ethfsFileStorageAddress;
     }
 
-    function indexHTML() public view returns (string memory) {
+    function indexHTML(uint pageNumber) public view returns (string memory) {
+
+        uint terraformsTotalSupply = ITerraforms(terraformsAddress).totalSupply();
+        uint terraformsPerPage = 3;
+        uint pagesCount = terraformsTotalSupply / terraformsPerPage + (terraformsTotalSupply / terraformsPerPage > 0 ? 1 : 0);
 
         WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](3);
         requests[0].name = "scriptyBase";
@@ -52,20 +60,42 @@ contract TerraformNavigator {
         requests[1].scriptContent = 'body {background-color: #171717; color: #f5f5f5}';
         requests[1].wrapSuffix = "</style>";
 
-        requests[2].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
-        requests[2].scriptContent = abi.encodePacked(
+        string memory page;
+        for(uint i = (pageNumber - 1) * terraformsPerPage + 1; i <= pageNumber * terraformsPerPage && i <= terraformsTotalSupply; i++) {
+            page = string(abi.encodePacked(
+                page,
+                '<a href="evm://0x', ToString.addressToString(address(this)), '/viewHTML?tokenId:uint256=', ToString.toString(i), '">'
+                '<img src="evm://0x', ToString.addressToString(terraformsAddress) , '/tokenSVG?tokenId:uint256=', ToString.toString(i), '" style="width:200px">'
+                '</a>'
+            ));
+        }
+
+        if(pageNumber > 1) {
+            page = string(abi.encodePacked(
+                page,
+                '<a href="evm://0x', ToString.addressToString(address(this)), '/indexHTML?page:uint256=', ToString.toString(int(pageNumber - 1)), '">'
+                '[< prev]'
+                '</a>'
+            ));
+        }
+        if(pageNumber < pagesCount) {
+            page = string(abi.encodePacked(
+                page,
+                '<a href="evm://0x', ToString.addressToString(address(this)), '/indexHTML?page:uint256=', ToString.toString(int(pageNumber + 1)), '">'
+                '[next >]'
+                '</a>'
+            ));
+        }
+
+        page = string(abi.encodePacked(
             '<h1 style="text-align: center">Terraform navigator</h1>'
-            '<br />'
-            '<a href="evm://0x', ToString.addressToString(address(this)), '/viewHTML?tokenId:uint256=4197">'
-                '<img src="evm://0x4e1f41613c9084fdb9e34e11fae9412427480e56/tokenSVG?tokenId:uint256=4197" style="width:200px">'
-            '</a>'
-            '<a href="evm://0x', ToString.addressToString(address(this)), '/viewHTML?tokenId:uint256=4198">'
-                '<img src="evm://0x4e1f41613c9084fdb9e34e11fae9412427480e56/tokenSVG?tokenId:uint256=4198" style="width:200px">'
-            '</a>'
-            '<a href="evm://0x', ToString.addressToString(address(this)), '/viewHTML?tokenId:uint256=4199">'
-                '<img src="evm://0x4e1f41613c9084fdb9e34e11fae9412427480e56/tokenSVG?tokenId:uint256=4199" style="width:200px">'
-            '</a>'
-        );
+            '<br />',
+            page
+        ));
+
+        requests[2].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
+        requests[2].scriptContent = bytes(page);
+
 
         // Random buffer for now
         uint bufferSize = 291925;
@@ -75,6 +105,12 @@ contract TerraformNavigator {
 
         return string(html);
     }
+
+    // function thumbnailSVG(uint256 tokenId) public view returns (string memory) {
+
+    //     string svg = ITerraforms(terraformsSVGAddress).tokenSVG(tokenId);
+
+    // }
 
     function viewHTML(uint256 tokenId) public view returns (string memory) {
 
@@ -93,7 +129,7 @@ contract TerraformNavigator {
         requests[2].scriptContent = abi.encodePacked(
             '<h1 style="text-align: center">Terraform ', ToString.toString(tokenId), '</h1>'
             '<br />'
-            '<img src="evm://0x4e1f41613c9084fdb9e34e11fae9412427480e56/tokenSVG?tokenId:uint256=', ToString.toString(tokenId) ,'">'
+            '<img src="evm://0x', ToString.addressToString(terraformsAddress) , '/tokenSVG?tokenId:uint256=', ToString.toString(tokenId) ,'">'
         );
 
         // Random buffer for now
