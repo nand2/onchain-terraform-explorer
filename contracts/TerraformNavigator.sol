@@ -38,37 +38,22 @@ contract TerraformNavigator {
         uint terraformsPerPage = 10;
         uint pagesCount = terraformsTotalSupply / terraformsPerPage + (terraformsTotalSupply % terraformsPerPage > 0 ? 1 : 0);
 
-        WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](4);
-        requests[0].name = "scriptyBase";
-        requests[0].wrapType = 0; // <script>[script]</script>
-        requests[0].contractAddress = scriptyStorageAddress;
+        WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](3);
 
-        // requests[1].name = "p5-v1.5.0.min.js.gz";
-        // requests[1].wrapType = 2; // <script type="text/javascript+gzip" src="data:text/javascript;base64,[script]"></script>
-        // requests[1].contractAddress = ethfsFileStorageAddress;
-
-        // requests[2].name = "gunzipScripts-0.0.1.js";
-        // requests[2].wrapType = 1; // <script src="data:text/javascript;base64,[script]"></script>
-        // requests[2].contractAddress = ethfsFileStorageAddress;
-
-
-        // requests[1].wrapType = 0; // <script>[script]</script>
-        // requests[1].scriptContent = "xxx";
+        requests[0].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
+        requests[0].wrapPrefix = '<link rel="stylesheet" href="data:text/css;base64,';
+        requests[0].name = "simple-2.1.1-06b44bd.min.css";
+        requests[0].contractAddress = ethfsFileStorageAddress;
+        requests[0].wrapSuffix = '" />';
 
         requests[1].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
-        requests[1].wrapPrefix = '<link rel="stylesheet" href="data:text/css;base64,';
-        requests[1].name = "simple-2.1.1-06b44bd.min.css";
-        requests[1].contractAddress = ethfsFileStorageAddress;
-        requests[1].wrapSuffix = '" />';
-
-        requests[2].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
-        requests[2].wrapPrefix = "<style>";
-        requests[2].scriptContent = 
+        requests[1].wrapPrefix = "<style>";
+        requests[1].scriptContent = 
             'body{'
                 'grid-template-columns: 1fr min(80rem,90%) 1fr'
             '}'
             '.items{'
-                'display:grid; gap: 1rem; grid-template-columns: repeat(5, 1fr); grid-auto-rows: min-content;'
+                'display:grid; gap: 2rem; grid-template-columns: repeat(5, 1fr); grid-auto-rows: min-content;'
             '}'
             '@media (max-width: 1024px){'
                 '.items{'
@@ -80,26 +65,46 @@ contract TerraformNavigator {
                     'grid-template-columns: repeat(2, 1fr);'
                 '}'
             '}'
+            '.item{'
+                'text-align: center; margin-bottom: 10px'
+            '}'
+            '.item img{'
+                'display: block; margin-bottom: 6px'
+            '}'
+            '.item .detail{'
+                'line-height: 1.3'
+            '}'
             '.center{'
                 'text-align: center'
             '}';
-        requests[2].wrapSuffix = "</style>";
+        requests[1].wrapSuffix = "</style>";
 
         string memory page;
-        for(uint i = (pageNumber - 1) * terraformsPerPage + 1; i <= pageNumber * terraformsPerPage && i <= terraformsTotalSupply; i++) {
+        for(uint tokenId = (pageNumber - 1) * terraformsPerPage + 1; tokenId <= pageNumber * terraformsPerPage && tokenId <= terraformsTotalSupply; tokenId++) {
+
+            ITerraforms.TokenData memory tokenData = ITerraforms(terraformsAddress).tokenSupplementalData(tokenId);
+            (,,, uint biomeIndex) = ITerraformsData(terraformsDataAddress).characterSet(ITerraforms(terraformsAddress).tokenToPlacement(tokenId), ITerraforms(terraformsAddress).seed());
+
             page = string(abi.encodePacked(
                 page,
-                '<div>'
-                '<a href="evm://0x', ToString.addressToString(address(this)), '/viewHTML?tokenId:uint256=', ToString.toString(i), '">'
-                '<img src="evm://0x', ToString.addressToString(terraformsAddress) , '/tokenSVG?tokenId:uint256=', ToString.toString(i), '">'
-                '</a>'
+                '<div class="item">'
+                    '<a href="evm://0x', ToString.addressToString(address(this)), '/viewHTML?tokenId:uint256=', ToString.toString(tokenId), '">'
+                        '<img src="evm://0x', ToString.addressToString(terraformsAddress) , '/tokenSVG?tokenId:uint256=', ToString.toString(tokenId), '">'
+                    '</a>'
+                    '<div class="detail">'
+                        '<a href="evm://0x', ToString.addressToString(address(this)), '/viewHTML?tokenId:uint256=', ToString.toString(tokenId), '">',
+                            ToString.toString(tokenId),
+                        '</a>'
+                    '</div>'
+                    '<div class="detail">'
+                        'L', ToString.toString(tokenData.level), '/B', ToString.toString(biomeIndex), '/', tokenData.zoneName,
+                    '</div>'
                 '</div>'
             ));
         }
 
         page = string(abi.encodePacked(
-            '<h1 class="center">Terraform navigator</h1>'
-            '<br />'
+            '<h3>Terraform navigator</h1>'
             '<div class="items">',
             page,
             '</div>'
@@ -128,8 +133,8 @@ contract TerraformNavigator {
             '</div>'
         ));
 
-        requests[3].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
-        requests[3].scriptContent = bytes(page);
+        requests[2].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
+        requests[2].scriptContent = bytes(page);
 
 
         // Random buffer for now

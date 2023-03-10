@@ -2,6 +2,20 @@
 pragma solidity ^0.8.0;
 
 interface ITerraforms {
+    struct TokenData {
+        uint tokenId;
+        uint level;
+        uint xCoordinate;
+        uint yCoordinate;
+        int elevation;
+        int structureSpaceX;
+        int structureSpaceY;
+        int structureSpaceZ;
+        string zoneName;
+        string[10] zoneColors;
+        string[9] characterSet;
+    }
+
     function tokenURI(uint) 
         external 
         view 
@@ -17,8 +31,23 @@ interface ITerraforms {
         view 
         returns (string memory);
 
+    function tokenSupplementalData(uint)
+        external
+        view
+        returns (TokenData memory result);
+
     function totalSupply()
         external
         view
         returns (uint256);
+
+    function tokenToPlacement(uint tokenId)
+        external
+        view
+        returns (uint);
+
+    function seed()
+        external
+        view
+        returns (uint);
 }
