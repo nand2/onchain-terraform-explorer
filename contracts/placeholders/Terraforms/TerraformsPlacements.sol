@@ -15,7 +15,8 @@ abstract contract TerraformsPlacements is TerraformsDreaming {
     event TokensRevealed(uint timestamp, uint seed);
 
     constructor (){
-        REVEAL_TIMESTAMP = block.timestamp + 7 days;
+        // REVEAL_TIMESTAMP = block.timestamp + 7 days;
+        REVEAL_TIMESTAMP = block.timestamp;// Modified vs original
     }
 
     /// @notice Finalizes the seed used to randomize token placement

@@ -98,7 +98,8 @@ contract Terraforms is TerraformsPlacements {
      * FUNCTION MODIFIERS
      * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
     modifier publicMint (uint numTokens) {
-        require(numTokens <= 10, "Max 10");
+        // require(numTokens <= 10, "Max 10");
+        require(numTokens <= 1000, "Max 1000"); // Modified vs original
         require(
             tokenCounter <= (SUPPLY - numTokens) &&
             msg.value >= numTokens * PRICE

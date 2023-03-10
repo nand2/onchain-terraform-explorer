@@ -3,7 +3,8 @@
 */
 
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.5.0;
+//pragma solidity ^0.5.0;
+pragma solidity ^0.8.0; // Modified vs original
 
 /**
  * @notice An implementation of Perlin Noise that uses 16 bit fixed point arithmetic.
