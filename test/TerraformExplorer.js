@@ -59,23 +59,27 @@ async function deployFixture() {
   txResult = await tx.wait()
 
 
-
   // Mainnet values
   let scriptyStorageAddress = "0x096451F43800f207FC32B4FF86F286EdaF736eE3";
   let scriptyBuilderAddress = "0x16b727a2Fc9322C724F4Bc562910c99a5edA5084";
   let ethfsFileStorageAddress = "0xFc7453dA7bF4d0c739C1c53da57b3636dAb0e11e";
 
   const TerraformExplorer = await ethers.getContractFactory("TerraformExplorer");
-  const terraformExplorer = await TerraformExplorer.deploy(scriptyStorageAddress, scriptyBuilderAddress, ethfsFileStorageAddress);
+  const terraformExplorer = await TerraformExplorer.deploy(terraforms.address, terraformsData.address, scriptyStorageAddress, scriptyBuilderAddress, ethfsFileStorageAddress);
 
+  console.log("Terraforms deployed at " + terraforms.address);
+  console.log("TerraformsData deployed at " + terraformsData.address);
   console.log("Contract deployed at " + terraformExplorer.address);
+
+  console.log("Sample terraform: evm://" + terraforms.address + "/tokenHTML?tokenId:uint256=4")
 
   return { terraformExplorer };
 }
 
 describe("TerraformExplorer", function () {
   it("Index", async function () {
-    const { terraformExplorer } = await loadFixture(deployFixture);
+    // const { terraformExplorer } = await loadFixture(deployFixture); // only with hardhat node
+    const { terraformExplorer } = await deployFixture();
 
     let gasUsage = await terraformExplorer.connect(user1).estimateGas.indexHTML();
     let result = await terraformExplorer.connect(user1).indexHTML();

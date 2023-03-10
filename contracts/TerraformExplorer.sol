@@ -9,14 +9,20 @@ import {IScriptyBuilder, WrappedScriptRequest} from "./interfaces/IScriptyBuilde
 
 contract TerraformExplorer {
 
+    address public immutable terraformsAddress;
+    address public immutable terraformsDataAddress;
     address public immutable scriptyStorageAddress;
     address public immutable scriptyBuilderAddress;
     address public immutable ethfsFileStorageAddress;
 
     constructor(
+        address _terraformsAddress,
+        address _terraformsDataAddress,
         address _scriptyStorageAddress,
         address _scriptyBuilderAddress, 
         address _ethfsFileStorageAddress) {
+        terraformsAddress = _terraformsAddress;
+        terraformsDataAddress = _terraformsDataAddress;
         scriptyStorageAddress = _scriptyStorageAddress;
         scriptyBuilderAddress = _scriptyBuilderAddress;
         ethfsFileStorageAddress = _ethfsFileStorageAddress;
