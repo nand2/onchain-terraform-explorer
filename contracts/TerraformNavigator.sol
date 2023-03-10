@@ -104,7 +104,7 @@ contract TerraformNavigator {
         }
 
         page = string(abi.encodePacked(
-            '<h3>Terraform navigator</h1>'
+            '<h3>Terraform navigator</h3>'
             '<div class="items">',
             page,
             '</div>'
@@ -132,17 +132,12 @@ contract TerraformNavigator {
             page,
             '</div>'
         ));
-
         requests[2].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
         requests[2].scriptContent = bytes(page);
 
 
-        // Random buffer for now
-//TODO
-        uint bufferSize = 291925;
-
         bytes memory html = IScriptyBuilder(scriptyBuilderAddress)
-            .getHTMLWrapped(requests, bufferSize);
+            .getHTMLWrapped(requests, IScriptyBuilder(scriptyBuilderAddress).getBufferSizeForHTMLWrapped(requests));
 
         return string(html);
     }
@@ -155,29 +150,46 @@ contract TerraformNavigator {
 
     function viewHTML(uint256 tokenId) public view returns (string memory) {
 
-        WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](3);
-        requests[0].name = "scriptyBase";
-        requests[0].wrapType = 0; // <script>[script]</script>
-        requests[0].contractAddress = scriptyStorageAddress;
+        ITerraforms.TokenData memory tokenData = ITerraforms(terraformsAddress).tokenSupplementalData(tokenId);
+        (,,, uint biomeIndex) = ITerraformsData(terraformsDataAddress).characterSet(ITerraforms(terraformsAddress).tokenToPlacement(tokenId), ITerraforms(terraformsAddress).seed());
 
+
+        WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](3);
+
+        requests[0].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
+        requests[0].wrapPrefix = '<link rel="stylesheet" href="data:text/css;base64,';
+        requests[0].name = "simple-2.1.1-06b44bd.min.css";
+        requests[0].contractAddress = ethfsFileStorageAddress;
+        requests[0].wrapSuffix = '" />';
 
         requests[1].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
         requests[1].wrapPrefix = "<style>";
-        requests[1].scriptContent = 'body {background-color: #171717; color: #f5f5f5}';
+        requests[1].scriptContent = 
+            'body{'
+                'grid-template-columns: 1fr min(80rem,90%) 1fr'
+            '}'
+            '.grid{'
+                'display:grid; gap: 2rem; grid-template-columns: 1fr 1fr; grid-auto-rows: min-content;'
+            '}';
         requests[1].wrapSuffix = "</style>";
 
         requests[2].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
         requests[2].scriptContent = abi.encodePacked(
-            '<h1 style="text-align: center">Terraform ', ToString.toString(tokenId), '</h1>'
-            '<br />'
-            '<img src="evm://0x', ToString.addressToString(terraformsAddress) , '/tokenSVG?tokenId:uint256=', ToString.toString(tokenId) ,'">'
+            '<h3>Terraform navigator</h3>'
+            '<div class="grid">'
+                '<div>'
+                    '<img src="evm://0x', ToString.addressToString(terraformsAddress) , '/tokenSVG?tokenId:uint256=', ToString.toString(tokenId) ,'">'
+                '</div>'
+                '<div>'
+                    '<div>Parcel</div>'
+                    '<div>', ToString.toString(tokenId), '</div>'
+                '</div>'
+            '</div>'
         );
 
-        // Random buffer for now
-        uint bufferSize = 291925;
 
         bytes memory html = IScriptyBuilder(scriptyBuilderAddress)
-            .getHTMLWrapped(requests, bufferSize);
+            .getHTMLWrapped(requests, IScriptyBuilder(scriptyBuilderAddress).getBufferSizeForHTMLWrapped(requests));
 
         return string(html);
     }
