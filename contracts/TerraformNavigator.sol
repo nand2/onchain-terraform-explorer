@@ -35,10 +35,10 @@ contract TerraformNavigator {
     function indexHTML(uint pageNumber) public view returns (string memory) {
 
         uint terraformsTotalSupply = ITerraforms(terraformsAddress).totalSupply();
-        uint terraformsPerPage = 3;
-        uint pagesCount = terraformsTotalSupply / terraformsPerPage + (terraformsTotalSupply / terraformsPerPage > 0 ? 1 : 0);
+        uint terraformsPerPage = 10;
+        uint pagesCount = terraformsTotalSupply / terraformsPerPage + (terraformsTotalSupply % terraformsPerPage > 0 ? 1 : 0);
 
-        WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](3);
+        WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](4);
         requests[0].name = "scriptyBase";
         requests[0].wrapType = 0; // <script>[script]</script>
         requests[0].contractAddress = scriptyStorageAddress;
@@ -56,19 +56,55 @@ contract TerraformNavigator {
         // requests[1].scriptContent = "xxx";
 
         requests[1].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
-        requests[1].wrapPrefix = "<style>";
-        requests[1].scriptContent = 'body {background-color: #171717; color: #f5f5f5}';
-        requests[1].wrapSuffix = "</style>";
+        requests[1].wrapPrefix = '<link rel="stylesheet" href="data:text/css;base64,';
+        requests[1].name = "simple-2.1.1-06b44bd.min.css";
+        requests[1].contractAddress = ethfsFileStorageAddress;
+        requests[1].wrapSuffix = '" />';
+
+        requests[2].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
+        requests[2].wrapPrefix = "<style>";
+        requests[2].scriptContent = 
+            'body{'
+                'grid-template-columns: 1fr min(80rem,90%) 1fr'
+            '}'
+            '.items{'
+                'display:grid; gap: 1rem; grid-template-columns: repeat(5, 1fr); grid-auto-rows: min-content;'
+            '}'
+            '@media (max-width: 1024px){'
+                '.items{'
+                    'grid-template-columns: repeat(3, 1fr);'
+                '}'
+            '}'
+            '@media (max-width: 768px){'
+                '.items{'
+                    'grid-template-columns: repeat(2, 1fr);'
+                '}'
+            '}'
+            '.center{'
+                'text-align: center'
+            '}';
+        requests[2].wrapSuffix = "</style>";
 
         string memory page;
         for(uint i = (pageNumber - 1) * terraformsPerPage + 1; i <= pageNumber * terraformsPerPage && i <= terraformsTotalSupply; i++) {
             page = string(abi.encodePacked(
                 page,
+                '<div>'
                 '<a href="evm://0x', ToString.addressToString(address(this)), '/viewHTML?tokenId:uint256=', ToString.toString(i), '">'
-                '<img src="evm://0x', ToString.addressToString(terraformsAddress) , '/tokenSVG?tokenId:uint256=', ToString.toString(i), '" style="width:200px">'
+                '<img src="evm://0x', ToString.addressToString(terraformsAddress) , '/tokenSVG?tokenId:uint256=', ToString.toString(i), '">'
                 '</a>'
+                '</div>'
             ));
         }
+
+        page = string(abi.encodePacked(
+            '<h1 class="center">Terraform navigator</h1>'
+            '<br />'
+            '<div class="items">',
+            page,
+            '</div>'
+            '<div class="center">'
+        ));
 
         if(pageNumber > 1) {
             page = string(abi.encodePacked(
@@ -88,16 +124,16 @@ contract TerraformNavigator {
         }
 
         page = string(abi.encodePacked(
-            '<h1 style="text-align: center">Terraform navigator</h1>'
-            '<br />',
-            page
+            page,
+            '</div>'
         ));
 
-        requests[2].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
-        requests[2].scriptContent = bytes(page);
+        requests[3].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
+        requests[3].scriptContent = bytes(page);
 
 
         // Random buffer for now
+//TODO
         uint bufferSize = 291925;
 
         bytes memory html = IScriptyBuilder(scriptyBuilderAddress)

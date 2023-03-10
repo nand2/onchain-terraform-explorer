@@ -51,7 +51,7 @@ async function deployFixture() {
   txResult = await tx.wait()
 
   // If only, I could do that on mainnet....
-  let mintCount = 10
+  let mintCount = 20
   tx = await terraforms.mint(mintCount, {value: ethers.utils.parseEther('0.16').mul(mintCount)})
   txResult = await tx.wait()  
 
@@ -59,10 +59,15 @@ async function deployFixture() {
   txResult = await tx.wait()
 
 
-  // Mainnet values
-  let scriptyStorageAddress = "0x096451F43800f207FC32B4FF86F286EdaF736eE3";
-  let scriptyBuilderAddress = "0x16b727a2Fc9322C724F4Bc562910c99a5edA5084";
-  let ethfsFileStorageAddress = "0xFc7453dA7bF4d0c739C1c53da57b3636dAb0e11e";
+  // Goerli values
+  let scriptyStorageAddress = "0x730B0ADaaD15B0551928bAE7011F2C1F2A9CA20C";
+  let scriptyBuilderAddress = "0xc9AB9815d4D5461F3b53Ebd857b6582E82A45C49";
+  let ethfsFileStorageAddress = "0x70a78d91A434C1073D47b2deBe31C184aA8CA9Fa";
+
+  // // Mainnet values
+  // let scriptyStorageAddress = "0x096451F43800f207FC32B4FF86F286EdaF736eE3";
+  // let scriptyBuilderAddress = "0x16b727a2Fc9322C724F4Bc562910c99a5edA5084";
+  // let ethfsFileStorageAddress = "0xFc7453dA7bF4d0c739C1c53da57b3636dAb0e11e";
 
   const TerraformNavigator = await ethers.getContractFactory("TerraformNavigator");
   const terraformNavigator = await TerraformNavigator.deploy(terraforms.address, terraformsData.address, scriptyStorageAddress, scriptyBuilderAddress, ethfsFileStorageAddress);
@@ -86,8 +91,8 @@ describe("TerraformNavigator", function () {
     let gasUsage = await terraformNavigator.connect(user1).estimateGas.indexHTML(1);
     let result = await terraformNavigator.connect(user1).indexHTML(1);
 
-    // console.log(result);
-    // console.log("Gas used: ", gasUsage.toNumber())
+    console.log(result);
+    console.log("Gas used: ", gasUsage.toNumber())
   });
 
 });
