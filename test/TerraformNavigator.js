@@ -22,11 +22,12 @@ async function deployFixture() {
   const TerraformsCharacters = await ethers.getContractFactory("TerraformsCharacters");
   const terraformsCharacters = await TerraformsCharacters.deploy();
   console.log("TerraformsCharacters deployed at " + terraformsCharacters.address);
-  for(let i = 0; i < terraformsCharactersFontsB64.length; i++) {
-    let tx = await terraformsCharacters.addFont(i, terraformsCharactersFontsB64[i]);
-    let txResult = await tx.wait()
-    console.log("TerraformsCharacters font " + i + ' added');
-  }
+  // Anvil fails after the first .addFont() call (timeout), so disabling for now
+  // for(let i = 0; i < terraformsCharactersFontsB64.length; i++) {
+  //   let tx = await terraformsCharacters.addFont(i, terraformsCharactersFontsB64[i]);
+  //   let txResult = await tx.wait()
+  //   console.log("TerraformsCharacters font " + i + ' added');
+  // }
 
   const TerraformsSVG = await ethers.getContractFactory("TerraformsSVG");
   const terraformsSVG = await TerraformsSVG.deploy(terraformsCharacters.address);
@@ -57,14 +58,18 @@ async function deployFixture() {
   let txResult = await tx.wait()
   tx = await terraforms.togglePause()
   txResult = await tx.wait()
+  console.log("Terraforms sale toggled");
 
   // If only, I could do that on mainnet....
   let mintCount = 20
   tx = await terraforms.mint(mintCount)
   txResult = await tx.wait()
+  console.log("Terraforms minted");
 
   tx = await terraforms.setSeed()
   txResult = await tx.wait()
+  console.log("Terraforms seeded");
+  
 
   // Goerli values
   let scriptyStorageAddress = "0x730B0ADaaD15B0551928bAE7011F2C1F2A9CA20C";
@@ -77,7 +82,7 @@ async function deployFixture() {
   // let ethfsFileStorageAddress = "0xFc7453dA7bF4d0c739C1c53da57b3636dAb0e11e";
 
   const TerraformNavigator = await ethers.getContractFactory("TerraformNavigator");
-  const terraformNavigator = await TerraformNavigator.deploy(terraforms.address, terraformsData.address, scriptyStorageAddress, scriptyBuilderAddress, ethfsFileStorageAddress);
+  const terraformNavigator = await TerraformNavigator.deploy("goerli", terraforms.address, terraformsData.address, scriptyBuilderAddress, ethfsFileStorageAddress);
 
   console.log("Terraforms deployed at " + terraforms.address);
   console.log("TerraformsData deployed at " + terraformsData.address);
@@ -85,7 +90,7 @@ async function deployFixture() {
 
   console.log("Sample terraform HTML: evm://" + terraforms.address + "/tokenHTML?tokenId:uint256=4")
   console.log("Sample terraform SVG: evm://" + terraforms.address + "/tokenHTML?tokenId:uint256=4")
-  console.log("Index URL: evm://" + terraformNavigator.address + '/indexHTML?pageNumber:uint256=1');
+  console.log("Index URL: evm://goerli@" + terraformNavigator.address + '/indexHTML?pageNumber:uint256=1');
 
   return { terraformNavigator };
 }
@@ -98,7 +103,7 @@ describe("TerraformNavigator", function () {
     let gasUsage = await terraformNavigator.connect(user1).estimateGas.indexHTML(1);
     let result = await terraformNavigator.connect(user1).indexHTML(1);
 
-    console.log(result);
+    // console.log(result);
     console.log("Gas used: ", gasUsage.toNumber())
   });
 

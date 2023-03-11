@@ -17,10 +17,10 @@ module.exports = {
         },
     },
     networks: {
-        goerli: {
-            url: process.env.GOERLI_URL,
-            // accounts: [process.env.GOERLI_PRIVATE_KEY],
-        }
+        // goerli: {
+        //     url: process.env.GOERLI_URL,
+        //     // accounts: [process.env.GOERLI_PRIVATE_KEY],
+        // }
     },
     mocha: {
         timeout: 200000

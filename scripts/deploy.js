@@ -8,19 +8,21 @@ const hre = require("hardhat");
 
 async function main() {
 
-  // Mainnet values
-  let scriptyStorageAddress = "0x096451F43800f207FC32B4FF86F286EdaF736eE3";
-  let scriptyBuilderAddress = "0x16b727a2Fc9322C724F4Bc562910c99a5edA5084";
-  let ethfsFileStorageAddress = "0xFc7453dA7bF4d0c739C1c53da57b3636dAb0e11e";
+  // Contracts are deployed using the first signer/account by default
+  [owner] = await ethers.getSigners();
+  console.log("Signer address: ", owner.address)
 
-  const TerraformExplorer = await hre.ethers.getContractFactory("TerraformExplorer");
-  const terraformExplorer = await TerraformExplorer.deploy(scriptyStorageAddress, scriptyBuilderAddress, ethfsFileStorageAddress);
+  // Goerli values
+  let linksNetwork = "goerli";
+  let terraformsAddress = "0x5A985f13345E820AA9618826B85F74C3986e1463";
+  let terraformsDataAddress = "0x76010876050387FA66E28a1883aD73d576D88Bf2";
+  let scriptyBuilderAddress = "0xc9AB9815d4D5461F3b53Ebd857b6582E82A45C49";
+  let ethfsFileStorageAddress = "0x70a78d91A434C1073D47b2deBe31C184aA8CA9Fa";
 
-  await terraformExplorer.deployed();
+  const TerraformNavigator = await ethers.getContractFactory("TerraformNavigator");
+  const terraformNavigator = await TerraformNavigator.deploy(linksNetwork, terraformsAddress, terraformsDataAddress, scriptyBuilderAddress, ethfsFileStorageAddress);
 
-  console.log(
-    `Deployed  to ${terraformExplorer.address}`
-  );
+  console.log("TerraformNavigator deployed at " + terraformNavigator.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
