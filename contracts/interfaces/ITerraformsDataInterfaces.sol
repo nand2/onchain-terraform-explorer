@@ -50,6 +50,11 @@ interface ITerraformsCharacters {
         external 
         view 
         returns (string[9] memory, uint);
+
+    function font(uint id) 
+        external 
+        view 
+        returns (string memory);
 }
 
 interface IPerlinNoise {

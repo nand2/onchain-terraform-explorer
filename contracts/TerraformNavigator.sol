@@ -14,11 +14,12 @@ contract TerraformNavigator {
 
     string linksNetwork;
 
-    address public immutable terraformsAddress;
-    address public immutable terraformsDataAddress;
+    address immutable terraformsAddress;
+    address immutable terraformsDataAddress;
+    address immutable terraformsCharactersAddress;
 
-    address public immutable scriptyBuilderAddress;
-    address public immutable ethfsFileStorageAddress;
+    address immutable scriptyBuilderAddress;
+    address immutable ethfsFileStorageAddress;
 
     mapping(ITerraforms.Status => string) statusToLabel;
 
@@ -26,11 +27,15 @@ contract TerraformNavigator {
         string memory _linksNetwork,
         address _terraformsAddress,
         address _terraformsDataAddress,
+        address _terraformsCharactersAddress,
         address _scriptyBuilderAddress, 
         address _ethfsFileStorageAddress) {
         linksNetwork = _linksNetwork;
+
         terraformsAddress = _terraformsAddress;
         terraformsDataAddress = _terraformsDataAddress;
+        terraformsCharactersAddress = _terraformsCharactersAddress;
+
         scriptyBuilderAddress = _scriptyBuilderAddress;
         ethfsFileStorageAddress = _ethfsFileStorageAddress;
 
@@ -60,6 +65,9 @@ contract TerraformNavigator {
         requests[1].scriptContent = 
             'body{'
                 'grid-template-columns: 1fr min(80rem,90%) 1fr'
+            '}'
+            '.site-title a{'
+                'text-decoration: none;'
             '}'
             '.items{'
                 'display:grid; gap: 2rem; grid-template-columns: repeat(5, 1fr); grid-auto-rows: min-content;'
@@ -113,7 +121,11 @@ contract TerraformNavigator {
         }
 
         page = string(abi.encodePacked(
-            '<h3>Terraform navigator</h3>'
+            '<h4 class="site-title">'
+                '<a href="/indexHTML?page:uint256=1">'
+                    'Terraform navigator'
+                '</a>'
+            '</h4>'
             '<div class="items">',
             page,
             '</div>'
@@ -161,7 +173,7 @@ contract TerraformNavigator {
         // Main token data
         ITerraforms.TokenData memory tokenData = ITerraforms(terraformsAddress).tokenSupplementalData(tokenId);
         // Biome
-        (,,, uint biomeIndex) = ITerraformsData(terraformsDataAddress).characterSet(ITerraforms(terraformsAddress).tokenToPlacement(tokenId), ITerraforms(terraformsAddress).seed());
+        (string[9] memory charsSet, uint font,, uint biomeIndex) = ITerraformsData(terraformsDataAddress).characterSet(ITerraforms(terraformsAddress).tokenToPlacement(tokenId), ITerraforms(terraformsAddress).seed());
         
 
 
@@ -175,9 +187,12 @@ contract TerraformNavigator {
 
         requests[1].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
         requests[1].wrapPrefix = "<style>";
-        requests[1].scriptContent = 
+        requests[1].scriptContent = abi.encodePacked(
             'body{'
                 'grid-template-columns: 1fr min(80rem,90%) 1fr'
+            '}'
+            '.site-title a{'
+                'text-decoration: none;'
             '}'
             '.grid{'
                 'display: grid; gap: 2rem; grid-template-columns: 1fr 1fr; grid-auto-rows: min-content;'
@@ -197,9 +212,20 @@ contract TerraformNavigator {
                 'grid-template-columns: repeat(4, 1fr); margin-bottom: 15px'
             '}'
             '.attrs2{'
-                'grid-template-columns: repeat(3, 1fr)'
+                'grid-template-columns: repeat(3, 1fr); margin-bottom: 15px'
             '}'
-            ;
+            '.attrs3{'
+                'grid-template-columns: repeat(9, 1fr)'
+            '}'
+            '@font-face {'
+                'font-family:"MathcastlesRemix-Regular";'
+                'font-display:block;'
+                'src:url(data:application/font-woff2;charset=utf-8;base64,', ITerraformsCharacters(terraformsCharactersAddress).font(font), ') format("woff");'
+            '}'
+            '.chars-set {'
+                'font-family: "MathcastlesRemix-Regular"'
+            '}'
+            );
         requests[1].wrapSuffix = "</style>";
 
         // Splitting due to stack too deeeep
@@ -251,8 +277,34 @@ contract TerraformNavigator {
                 '</div>'
             );
         }
+        {
+            bytes memory charsSetSection;
+            for(uint i = 0; i < charsSet.length; i++) {
+                charsSetSection = abi.encodePacked(
+                    charsSetSection,
+                    '<div>'
+                        '<div class="chars-set">', charsSet[i], '</div>'
+                        '<span>', ToString.toString(i), '</span>'
+                    '</div>'
+                );
+            }
+
+            page = abi.encodePacked(
+                page,
+                '<div>'
+                    '<strong>Character set</strong>'
+                '</div>'
+                '<div class="attrs attrs3">',
+                    charsSetSection,
+                '</div>'
+            );
+        }
         page = abi.encodePacked(
-            '<h3>Terraform navigator</h3>'
+            '<h4 class="site-title">'
+                '<a href="/indexHTML?page:uint256=1">'
+                    'Terraform navigator'
+                '</a>'
+            '</h4>'
             '<div class="grid">'
                 '<div>'
                     '<img src="evm://', linksNetwork, '@0x', ToString.addressToString(terraformsAddress) , '/tokenSVG?tokenId:uint256=', ToString.toString(tokenId) ,'">'
