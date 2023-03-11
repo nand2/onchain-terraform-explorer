@@ -20,6 +20,8 @@ contract TerraformNavigator {
     address public immutable scriptyBuilderAddress;
     address public immutable ethfsFileStorageAddress;
 
+    mapping(ITerraforms.Status => string) statusToLabel;
+
     constructor(
         string memory _linksNetwork,
         address _terraformsAddress,
@@ -31,6 +33,12 @@ contract TerraformNavigator {
         terraformsDataAddress = _terraformsDataAddress;
         scriptyBuilderAddress = _scriptyBuilderAddress;
         ethfsFileStorageAddress = _ethfsFileStorageAddress;
+
+        statusToLabel[ITerraforms.Status.Terrain] = "Terrain";
+        statusToLabel[ITerraforms.Status.Daydream] = "Daydream";
+        statusToLabel[ITerraforms.Status.Terraformed] = "Terraformed";
+        statusToLabel[ITerraforms.Status.OriginDaydream] = "Origin Daydream";
+        statusToLabel[ITerraforms.Status.OriginTerraformed] = "Origin Terraformed";
     }
 
     function indexHTML(uint pageNumber) public view returns (string memory) {
@@ -150,9 +158,11 @@ contract TerraformNavigator {
     // }
 
     function viewHTML(uint256 tokenId) public view returns (string memory) {
-
+        // Main token data
         ITerraforms.TokenData memory tokenData = ITerraforms(terraformsAddress).tokenSupplementalData(tokenId);
+        // Biome
         (,,, uint biomeIndex) = ITerraformsData(terraformsDataAddress).characterSet(ITerraforms(terraformsAddress).tokenToPlacement(tokenId), ITerraforms(terraformsAddress).seed());
+        
 
 
         WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](3);
@@ -170,23 +180,95 @@ contract TerraformNavigator {
                 'grid-template-columns: 1fr min(80rem,90%) 1fr'
             '}'
             '.grid{'
-                'display:grid; gap: 2rem; grid-template-columns: 1fr 1fr; grid-auto-rows: min-content;'
-            '}';
+                'display: grid; gap: 2rem; grid-template-columns: 1fr 1fr; grid-auto-rows: min-content;'
+            '}'
+            '@media (max-width: 768px){'
+                '.grid{'
+                    'grid-template-columns: 1fr;'
+                '}'
+            '}'
+            '.attrs{'
+                'display: grid; gap: 1rem; grid-auto-rows: min-content;'
+            '}'
+            '.attrs strong{'
+                'display: block;'
+            '}'
+            '.attrs1{'
+                'grid-template-columns: repeat(4, 1fr); margin-bottom: 15px'
+            '}'
+            '.attrs2{'
+                'grid-template-columns: repeat(3, 1fr)'
+            '}'
+            ;
         requests[1].wrapSuffix = "</style>";
 
-        requests[2].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
-        requests[2].scriptContent = abi.encodePacked(
+        // Splitting due to stack too deeeep
+        bytes memory page;
+        {
+            // Mode/status
+            ITerraforms.Status tokenStatus = ITerraforms(terraformsAddress).tokenToStatus(tokenId);
+
+            page = abi.encodePacked(
+                '<div class="attrs attrs1">'
+                    '<div>'
+                        '<strong>Mode</strong>'
+                        '<span>', statusToLabel[tokenStatus], '</span>'
+                    '</div>'
+                    '<div>'
+                        '<strong>Level</strong>'
+                        '<span>', ToString.toString(tokenData.level), '</span>'
+                    '</div>'
+                    '<div>'
+                        '<strong>Zone</strong>'
+                        '<span>', tokenData.zoneName, '</span>'
+                    '</div>'
+                    '<div>'
+                        '<strong>Biome</strong>'
+                        '<span>', ToString.toString(biomeIndex), '</span>'
+                    '</div>'
+                '</div>'
+            );
+        }
+        {
+            // Resource ???
+            uint resourceLevel = ITerraformsData(terraformsDataAddress).resourceLevel(ITerraforms(terraformsAddress).tokenToPlacement(tokenId), ITerraforms(terraformsAddress).seed());
+
+            page = abi.encodePacked(
+                page,
+                '<div class="attrs attrs2">'
+                    '<div>'
+                        '<strong>X</strong>'
+                        '<span>', ToString.toString(tokenData.xCoordinate), '</span>'
+                    '</div>'
+                    '<div>'
+                        '<strong>Y</strong>'
+                        '<span>', ToString.toString(tokenData.yCoordinate), '</span>'
+                    '</div>'
+                    '<div>'
+                        '<strong>???</strong>'
+                        '<span>', ToString.toString(resourceLevel), '</span>'
+                    '</div>'
+                '</div>'
+            );
+        }
+        page = abi.encodePacked(
             '<h3>Terraform navigator</h3>'
             '<div class="grid">'
                 '<div>'
                     '<img src="evm://', linksNetwork, '@0x', ToString.addressToString(terraformsAddress) , '/tokenSVG?tokenId:uint256=', ToString.toString(tokenId) ,'">'
                 '</div>'
                 '<div>'
-                    '<div>Parcel</div>'
-                    '<div>', ToString.toString(tokenId), '</div>'
+                    '<div style="margin-bottom: 20px">'
+                        '<div>Parcel</div>'
+                        '<div style="font-size: 1.7rem; font-weight: bold;">', ToString.toString(tokenId), '</div>'
+                    '</div>',
+                page,
                 '</div>'
-            '</div>'
+            '</div>'         
         );
+
+        requests[2].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
+        requests[2].scriptContent = page;
 
 
         bytes memory html = IScriptyBuilder(scriptyBuilderAddress)

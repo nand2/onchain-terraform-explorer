@@ -2,6 +2,14 @@
 pragma solidity ^0.8.0;
 
 interface ITerraforms {
+    enum Status {
+        Terrain, 
+        Daydream, 
+        Terraformed, 
+        OriginDaydream, 
+        OriginTerraformed
+    }
+
     struct TokenData {
         uint tokenId;
         uint level;
@@ -50,4 +58,9 @@ interface ITerraforms {
         external
         view
         returns (uint);
+
+    function tokenToStatus(uint tokenId)
+        external
+        view
+        returns (Status);
 }
