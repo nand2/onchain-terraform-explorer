@@ -88,9 +88,9 @@ async function deployFixture() {
   console.log("TerraformsData deployed at " + terraformsData.address);
   console.log("Contract deployed at " + terraformNavigator.address);
 
-  console.log("Sample terraform HTML: evm://" + terraforms.address + "/tokenHTML?tokenId:uint256=4")
-  console.log("Sample terraform SVG: evm://" + terraforms.address + "/tokenHTML?tokenId:uint256=4")
-  console.log("Index URL: evm://goerli@" + terraformNavigator.address + '/indexHTML?pageNumber:uint256=1');
+  // console.log("Sample terraform HTML: evm://" + terraforms.address + "/tokenHTML?tokenId:uint256=4")
+  // console.log("Sample terraform SVG: evm://" + terraforms.address + "/tokenHTML?tokenId:uint256=4")
+  console.log("Index URL: evm://goerli@" + terraformNavigator.address + '/raw/indexHTML?pageNumber:uint256=1');
 
   return { terraformNavigator };
 }
