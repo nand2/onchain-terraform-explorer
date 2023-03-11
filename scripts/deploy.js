@@ -16,11 +16,12 @@ async function main() {
   let linksNetwork = "goerli";
   let terraformsAddress = "0x5A985f13345E820AA9618826B85F74C3986e1463";
   let terraformsDataAddress = "0x76010876050387FA66E28a1883aD73d576D88Bf2";
+  let terraformsCharactersAddress = "0xDB41512fd094adFc94CD0DfcEDFA23F87608200B";
   let scriptyBuilderAddress = "0xc9AB9815d4D5461F3b53Ebd857b6582E82A45C49";
   let ethfsFileStorageAddress = "0x70a78d91A434C1073D47b2deBe31C184aA8CA9Fa";
 
   const TerraformNavigator = await ethers.getContractFactory("TerraformNavigator");
-  const terraformNavigator = await TerraformNavigator.deploy(linksNetwork, terraformsAddress, terraformsDataAddress, scriptyBuilderAddress, ethfsFileStorageAddress);
+  const terraformNavigator = await TerraformNavigator.deploy(linksNetwork, terraformsAddress, terraformsDataAddress, terraformsCharactersAddress, scriptyBuilderAddress, ethfsFileStorageAddress);
 
   console.log("TerraformNavigator deployed at " + terraformNavigator.address);
 }
