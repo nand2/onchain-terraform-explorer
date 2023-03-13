@@ -88,10 +88,10 @@ async function deployFixture() {
   console.log("TerraformsData deployed at " + terraformsData.address);
   console.log("Contract deployed at " + terraformNavigator.address);
 
-  console.log("Sample terraform HTML: evm://5@" + terraforms.address + "/call/tokenHTML(uint256 tokenId)?tokenId=4")
-  console.log("Sample terraform SVG: evm://5@" + terraforms.address + "/call/tokenSVG(uint256).svg?arg=4")
-  console.log("Sample terraformData levelAndTile: evm://5@" + terraformsData.address + "/call/levelAndTile(uint256,uint256)(uint256,uint256).txt?arg=2&arg=50");
-  console.log("Index URL: evm://5@" + terraformNavigator.address + '/call/indexHTML(uint256)?arg=1');
+  console.log("Sample terraform HTML: evm://" + terraforms.address + ".5/call/tokenHTML(uint256 tokenId)?tokenId=4")
+  console.log("Sample terraform SVG: evm://" + terraforms.address + ".5/call/tokenSVG(uint256).svg?arg=4")
+  console.log("Sample terraformData levelAndTile: evm://" + terraformsData.address + ".5/call/levelAndTile(uint256,uint256)(uint256,uint256).txt?arg=2&arg=50");
+  console.log("Index URL: evm://" + terraformNavigator.address + '.5/call/indexHTML(uint256)?arg=1');
 
   return { terraformNavigator };
 }

@@ -102,7 +102,7 @@ contract TerraformNavigator {
                 page,
                 '<div class="item">'
                     '<a href="/call/viewHTML(uint256)?arg=', ToString.toString(tokenId), '">'
-                        '<img src="evm://', ToString.toString(block.chainid), '@0x', ToString.addressToString(terraformsAddress) , '/call/tokenSVG(uint256).svg?arg=', ToString.toString(tokenId), '">'
+                        '<img src="evm://0x', ToString.addressToString(terraformsAddress) , '.', ToString.toString(block.chainid), '/call/tokenSVG(uint256).svg?arg=', ToString.toString(tokenId), '">'
                     '</a>'
                     '<div class="detail">'
                         '<a href="/call/viewHTML(uint256)?arg=', ToString.toString(tokenId), '">',
@@ -303,7 +303,7 @@ contract TerraformNavigator {
             '</h4>'
             '<div class="grid">'
                 '<div>'
-                    '<img src="evm://', ToString.toString(block.chainid), '@0x', ToString.addressToString(terraformsAddress) , '/call/tokenSVG(uint256).svg?arg=', ToString.toString(tokenId) ,'">'
+                    '<img src="evm://0x', ToString.addressToString(terraformsAddress), '.', ToString.toString(block.chainid), '/call/tokenSVG(uint256).svg?arg=', ToString.toString(tokenId) ,'">'
                 '</div>'
                 '<div>'
                     '<div style="margin-bottom: 20px">'
