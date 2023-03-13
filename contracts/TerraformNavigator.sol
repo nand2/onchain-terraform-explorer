@@ -12,8 +12,6 @@ import {IScriptyBuilder, WrappedScriptRequest} from "./interfaces/IScriptyBuilde
 
 contract TerraformNavigator {
 
-    string linksNetwork;
-
     address immutable terraformsAddress;
     address immutable terraformsDataAddress;
     address immutable terraformsCharactersAddress;
@@ -24,13 +22,11 @@ contract TerraformNavigator {
     mapping(ITerraforms.Status => string) statusToLabel;
 
     constructor(
-        string memory _linksNetwork,
         address _terraformsAddress,
         address _terraformsDataAddress,
         address _terraformsCharactersAddress,
         address _scriptyBuilderAddress, 
         address _ethfsFileStorageAddress) {
-        linksNetwork = _linksNetwork;
 
         terraformsAddress = _terraformsAddress;
         terraformsDataAddress = _terraformsDataAddress;
@@ -105,11 +101,11 @@ contract TerraformNavigator {
             page = string(abi.encodePacked(
                 page,
                 '<div class="item">'
-                    '<a href="/raw/viewHTML?tokenId:uint256=', ToString.toString(tokenId), '">'
-                        '<img src="evm://', linksNetwork, '@0x', ToString.addressToString(terraformsAddress) , '/raw/tokenSVG?tokenId:uint256=', ToString.toString(tokenId), '&result=string;image/svg%2bxml">'
+                    '<a href="/call/viewHTML(uint256)?arg=', ToString.toString(tokenId), '">'
+                        '<img src="evm://', ToString.toString(block.chainid), '@0x', ToString.addressToString(terraformsAddress) , '/call/tokenSVG(uint256).svg?arg=', ToString.toString(tokenId), '">'
                     '</a>'
                     '<div class="detail">'
-                        '<a href="/raw/viewHTML?tokenId:uint256=', ToString.toString(tokenId), '">',
+                        '<a href="/call/viewHTML(uint256)?arg=', ToString.toString(tokenId), '">',
                             ToString.toString(tokenId),
                         '</a>'
                     '</div>'
@@ -122,7 +118,7 @@ contract TerraformNavigator {
 
         page = string(abi.encodePacked(
             '<h4 class="site-title">'
-                '<a href="/raw/indexHTML?page:uint256=1">'
+                '<a href="/call/indexHTML?page:uint256=1">'
                     'Terraform navigator'
                 '</a>'
             '</h4>'
@@ -135,7 +131,7 @@ contract TerraformNavigator {
         if(pageNumber > 1) {
             page = string(abi.encodePacked(
                 page,
-                '<a href="/raw/indexHTML?page:uint256=', ToString.toString(int(pageNumber - 1)), '">'
+                '<a href="/call/indexHTML(uint256)?arg=', ToString.toString(int(pageNumber - 1)), '">'
                 '[< prev]'
                 '</a>'
             ));
@@ -143,7 +139,7 @@ contract TerraformNavigator {
         if(pageNumber < pagesCount) {
             page = string(abi.encodePacked(
                 page,
-                '<a href="/raw/indexHTML?page:uint256=', ToString.toString(int(pageNumber + 1)), '">'
+                '<a href="/call/indexHTML(uint256)?arg=', ToString.toString(int(pageNumber + 1)), '">'
                 '[next >]'
                 '</a>'
             ));
@@ -301,13 +297,13 @@ contract TerraformNavigator {
         }
         page = abi.encodePacked(
             '<h4 class="site-title">'
-                '<a href="/raw/indexHTML?page:uint256=1">'
+                '<a href="/call/indexHTML(uint256)?arg=1">'
                     'Terraform navigator'
                 '</a>'
             '</h4>'
             '<div class="grid">'
                 '<div>'
-                    '<img src="evm://', linksNetwork, '@0x', ToString.addressToString(terraformsAddress) , '/raw/tokenSVG?tokenId:uint256=', ToString.toString(tokenId) ,'&result=string;image/svg%2bxml">'
+                    '<img src="evm://', ToString.toString(block.chainid), '@0x', ToString.addressToString(terraformsAddress) , '/call/tokenSVG(uint256).svg?arg=', ToString.toString(tokenId) ,'">'
                 '</div>'
                 '<div>'
                     '<div style="margin-bottom: 20px">'

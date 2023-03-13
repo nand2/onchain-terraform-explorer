@@ -82,15 +82,16 @@ async function deployFixture() {
   // let ethfsFileStorageAddress = "0xFc7453dA7bF4d0c739C1c53da57b3636dAb0e11e";
 
   const TerraformNavigator = await ethers.getContractFactory("TerraformNavigator");
-  const terraformNavigator = await TerraformNavigator.deploy("goerli", terraforms.address, terraformsData.address, terraformsCharacters.address, scriptyBuilderAddress, ethfsFileStorageAddress);
+  const terraformNavigator = await TerraformNavigator.deploy(terraforms.address, terraformsData.address, terraformsCharacters.address, scriptyBuilderAddress, ethfsFileStorageAddress);
 
   console.log("Terraforms deployed at " + terraforms.address);
   console.log("TerraformsData deployed at " + terraformsData.address);
   console.log("Contract deployed at " + terraformNavigator.address);
 
-  // console.log("Sample terraform HTML: evm://" + terraforms.address + "/tokenHTML?tokenId:uint256=4")
-  // console.log("Sample terraform SVG: evm://" + terraforms.address + "/tokenHTML?tokenId:uint256=4")
-  console.log("Index URL: evm://goerli@" + terraformNavigator.address + '/raw/indexHTML?pageNumber:uint256=1');
+  console.log("Sample terraform HTML: evm://5@" + terraforms.address + "/call/tokenHTML(uint256 tokenId)?tokenId=4")
+  console.log("Sample terraform SVG: evm://5@" + terraforms.address + "/call/tokenSVG(uint256).svg?arg=4")
+  console.log("Sample terraformData levelAndTile: evm://5@" + terraformsData.address + "/call/levelAndTile(uint256,uint256)(uint256,uint256).txt?arg=2&arg=50");
+  console.log("Index URL: evm://5@" + terraformNavigator.address + '/call/indexHTML(uint256)?arg=1');
 
   return { terraformNavigator };
 }
