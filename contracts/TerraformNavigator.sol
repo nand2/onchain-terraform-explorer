@@ -101,11 +101,11 @@ contract TerraformNavigator {
             page = string(abi.encodePacked(
                 page,
                 '<div class="item">'
-                    '<a href="/call/viewHTML(uint256)?arg=', ToString.toString(tokenId), '">'
-                        '<img src="evm://0x', ToString.addressToString(terraformsAddress) , '.', ToString.toString(block.chainid), '/call/tokenSVG(uint256).svg?arg=', ToString.toString(tokenId), '">'
+                    '<a href="/viewHTML/', ToString.toString(tokenId), '">'
+                        '<img src="web3://0x', ToString.addressToString(terraformsAddress) , ':', ToString.toString(block.chainid), '/tokenSVG/', ToString.toString(tokenId), '.svg">'
                     '</a>'
                     '<div class="detail">'
-                        '<a href="/call/viewHTML(uint256)?arg=', ToString.toString(tokenId), '">',
+                        '<a href="/viewHTML/', ToString.toString(tokenId), '">',
                             ToString.toString(tokenId),
                         '</a>'
                     '</div>'
@@ -118,7 +118,7 @@ contract TerraformNavigator {
 
         page = string(abi.encodePacked(
             '<h4 class="site-title">'
-                '<a href="/call/indexHTML?page:uint256=1">'
+                '<a href="/indexHTML/1">'
                     'Terraform navigator'
                 '</a>'
             '</h4>'
@@ -131,7 +131,7 @@ contract TerraformNavigator {
         if(pageNumber > 1) {
             page = string(abi.encodePacked(
                 page,
-                '<a href="/call/indexHTML(uint256)?arg=', ToString.toString(int(pageNumber - 1)), '">'
+                '<a href="/indexHTML/', ToString.toString(int(pageNumber - 1)), '">'
                 '[< prev]'
                 '</a>'
             ));
@@ -139,7 +139,7 @@ contract TerraformNavigator {
         if(pageNumber < pagesCount) {
             page = string(abi.encodePacked(
                 page,
-                '<a href="/call/indexHTML(uint256)?arg=', ToString.toString(int(pageNumber + 1)), '">'
+                '<a href="/indexHTML/', ToString.toString(int(pageNumber + 1)), '">'
                 '[next >]'
                 '</a>'
             ));
@@ -297,13 +297,13 @@ contract TerraformNavigator {
         }
         page = abi.encodePacked(
             '<h4 class="site-title">'
-                '<a href="/call/indexHTML(uint256)?arg=1">'
+                '<a href="/indexHTML/1">'
                     'Terraform navigator'
                 '</a>'
             '</h4>'
             '<div class="grid">'
                 '<div>'
-                    '<img src="evm://0x', ToString.addressToString(terraformsAddress), '.', ToString.toString(block.chainid), '/call/tokenSVG(uint256).svg?arg=', ToString.toString(tokenId) ,'">'
+                    '<img src="web3://0x', ToString.addressToString(terraformsAddress), ':', ToString.toString(block.chainid), '/tokenSVG/', ToString.toString(tokenId) ,'.svg">'
                 '</div>'
                 '<div>'
                     '<div style="margin-bottom: 20px">'

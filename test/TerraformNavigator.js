@@ -61,7 +61,7 @@ async function deployFixture() {
   console.log("Terraforms sale toggled");
 
   // If only, I could do that on mainnet....
-  let mintCount = 20
+  let mintCount = 11
   tx = await terraforms.mint(mintCount)
   txResult = await tx.wait()
   console.log("Terraforms minted");
@@ -88,10 +88,10 @@ async function deployFixture() {
   console.log("TerraformsData deployed at " + terraformsData.address);
   console.log("Contract deployed at " + terraformNavigator.address);
 
-  console.log("Sample terraform HTML: evm://" + terraforms.address + ".5/call/tokenHTML(uint256 tokenId)?tokenId=4")
-  console.log("Sample terraform SVG: evm://" + terraforms.address + ".5/call/tokenSVG(uint256).svg?arg=4")
-  console.log("Sample terraformData levelAndTile: evm://" + terraformsData.address + ".5/call/levelAndTile(uint256,uint256)(uint256,uint256).txt?arg=2&arg=50");
-  console.log("Index URL: evm://" + terraformNavigator.address + '.5/call/indexHTML(uint256)?arg=1');
+  console.log("Sample terraform HTML: evm://" + terraforms.address + ":5/tokenHTML/4")
+  console.log("Sample terraform SVG: web3://" + terraforms.address + ":5/tokenSVG/4.svg")
+  console.log("Sample terraformData levelAndTile: web3://" + terraformsData.address + ":5/levelAndTile/2/50?returns=(uint256,uint256)");
+  console.log("Index URL: web3://" + terraformNavigator.address + ':5/indexHTML/1');
 
   return { terraformNavigator };
 }
