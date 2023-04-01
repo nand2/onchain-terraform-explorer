@@ -42,6 +42,27 @@ contract TerraformNavigator {
         statusToLabel[ITerraforms.Status.OriginTerraformed] = "Origin Terraformed";
     }
 
+    // function resolveMode() external pure returns (bytes32) {
+    //     return "manual";
+    // }
+
+    fallback(bytes calldata cdata) external returns (bytes memory) {
+        if (cdata.length == 0) {
+          return bytes("");
+        } else if (cdata[0] != 0x2f) {
+            // Should not happen since manual mode will have prefix "/" like "/....."
+            return bytes("incorrect path");
+        }
+
+        // Frontpage call "/"
+        if(cdata.length == 1) {
+            return bytes(indexHTML(1));
+        }
+
+        // Default : 404 (would be used if this onchain website was in manual mode)
+        return abi.encodePacked("404");
+    }
+
     function indexHTML(uint pageNumber) public view returns (string memory) {
 
         uint terraformsTotalSupply = ITerraforms(terraformsAddress).totalSupply();
@@ -118,7 +139,7 @@ contract TerraformNavigator {
 
         page = string(abi.encodePacked(
             '<h4 class="site-title">'
-                '<a href="/indexHTML/1">'
+                '<a href="/">'
                     'Terraform navigator'
                 '</a>'
             '</h4>'
@@ -297,7 +318,7 @@ contract TerraformNavigator {
         }
         page = abi.encodePacked(
             '<h4 class="site-title">'
-                '<a href="/indexHTML/1">'
+                '<a href="/">'
                     'Terraform navigator'
                 '</a>'
             '</h4>'

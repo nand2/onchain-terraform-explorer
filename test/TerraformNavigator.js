@@ -91,7 +91,7 @@ async function deployFixture() {
   console.log("Sample terraform HTML: evm://" + terraforms.address + ":5/tokenHTML/4")
   console.log("Sample terraform SVG: web3://" + terraforms.address + ":5/tokenSVG/4.svg")
   console.log("Sample terraformData levelAndTile: web3://" + terraformsData.address + ":5/levelAndTile/2/50?returns=(uint256,uint256)");
-  console.log("Index URL: web3://" + terraformNavigator.address + ':5/indexHTML/1');
+  console.log("Index URL: web3://" + terraformNavigator.address + ':5/');
 
   return { terraformNavigator };
 }
