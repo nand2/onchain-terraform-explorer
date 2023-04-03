@@ -51,12 +51,13 @@ contract TerraformNavigator {
           return bytes("");
         } else if (cdata[0] != 0x2f) {
             // Should not happen since manual mode will have prefix "/" like "/....."
-            return bytes("incorrect path");
+            return bytes(abi.encode("incorrect path"));
         }
 
         // Frontpage call "/"
         if(cdata.length == 1) {
-            return bytes(indexHTML(1));
+            // ABI.encode is required
+            return bytes(abi.encode(indexHTML(1)));
         }
 
         // Default : 404 (would be used if this onchain website was in manual mode)
