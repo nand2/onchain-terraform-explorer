@@ -70,6 +70,8 @@ contract TerraformNavigator {
         uint terraformsPerPage = 10;
         uint pagesCount = terraformsTotalSupply / terraformsPerPage + (terraformsTotalSupply % terraformsPerPage > 0 ? 1 : 0);
 
+        (string memory headerCSS, string memory headerHTML) = getHeader();
+
         WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](3);
 
         requests[0].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
@@ -80,13 +82,11 @@ contract TerraformNavigator {
 
         requests[1].wrapType = 4; // [wrapPrefix][script][wrapSuffix]
         requests[1].wrapPrefix = "<style>";
-        requests[1].scriptContent = 
+        requests[1].scriptContent = abi.encodePacked(
             'body{'
                 'grid-template-columns: 1fr min(80rem,90%) 1fr'
-            '}'
-            '.site-title a{'
-                'text-decoration: none;'
-            '}'
+            '}',
+            headerCSS,
             '.items{'
                 'display:grid; gap: 2rem; grid-template-columns: repeat(5, 1fr); grid-auto-rows: min-content;'
             '}'
@@ -111,7 +111,8 @@ contract TerraformNavigator {
             '}'
             '.center{'
                 'text-align: center'
-            '}';
+            '}'
+        );
         requests[1].wrapSuffix = "</style>";
 
         string memory page;
@@ -139,11 +140,7 @@ contract TerraformNavigator {
         }
 
         page = string(abi.encodePacked(
-            '<h4 class="site-title">'
-                '<a href="/">'
-                    'Terraform navigator'
-                '</a>'
-            '</h4>'
+            headerHTML,
             '<div class="items">',
             page,
             '</div>'
@@ -193,7 +190,7 @@ contract TerraformNavigator {
         // Biome
         (string[9] memory charsSet, uint font,, uint biomeIndex) = ITerraformsData(terraformsDataAddress).characterSet(ITerraforms(terraformsAddress).tokenToPlacement(tokenId), ITerraforms(terraformsAddress).seed());
         
-
+        (string memory headerCSS, string memory headerHTML) = getHeader();
 
         WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](3);
 
@@ -208,10 +205,8 @@ contract TerraformNavigator {
         requests[1].scriptContent = abi.encodePacked(
             'body{'
                 'grid-template-columns: 1fr min(80rem,90%) 1fr'
-            '}'
-            '.site-title a{'
-                'text-decoration: none;'
-            '}'
+            '}',
+            headerCSS,
             '.grid{'
                 'display: grid; gap: 2rem; grid-template-columns: 1fr 1fr; grid-auto-rows: min-content;'
             '}'
@@ -318,11 +313,7 @@ contract TerraformNavigator {
             );
         }
         page = abi.encodePacked(
-            '<h4 class="site-title">'
-                '<a href="/">'
-                    'Terraform navigator'
-                '</a>'
-            '</h4>'
+            headerHTML,
             '<div class="grid">'
                 '<div>'
                     '<img src="web3://0x', ToString.addressToString(terraformsAddress), ':', ToString.toString(block.chainid), '/tokenSVG/', ToString.toString(tokenId) ,'.svg">'
@@ -345,6 +336,34 @@ contract TerraformNavigator {
             .getHTMLWrapped(requests, IScriptyBuilder(scriptyBuilderAddress).getBufferSizeForHTMLWrapped(requests));
 
         return string(html);
+    }
+
+    function getHeader() internal view returns (string memory headerCSS, string memory headerHTML) {
+        headerCSS = 
+            '.site-title{'
+                'display: grid; grid-template-columns: minmax(0, 1fr) auto; margin-top: 1.5rem;'
+            '}'
+            '.site-title h4 {'
+                'margin-top: 0px'
+            '}'
+            '.site-title a{'
+                'text-decoration: none;'
+            '}'
+            '.site-title input{'
+                'width: 100px;'
+            '}';
+
+        headerHTML = 
+            '<div class="site-title">'
+                '<h4>'
+                    '<a href="/">'
+                        'Terraform navigator'
+                    '</a>'
+                '</h4>'
+                '<div class="search-box">'
+                    '<input type="text" placeholder="Token id" onkeypress="if(event.keyCode === 13){let id = parseInt(event.srcElement.value); if(isNaN(id) == false && id > 0){ window.location=\'/viewHTML/\' + id }}">'
+                '</div>'
+            '</div>';
     }
 
 }
