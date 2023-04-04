@@ -151,7 +151,7 @@ contract TerraformNavigator {
             page = string(abi.encodePacked(
                 page,
                 '<a href="/indexHTML/', ToString.toString(int(pageNumber - 1)), '">'
-                '[< prev]'
+                '[&lt; prev]'
                 '</a>'
             ));
         }
@@ -159,7 +159,7 @@ contract TerraformNavigator {
             page = string(abi.encodePacked(
                 page,
                 '<a href="/indexHTML/', ToString.toString(int(pageNumber + 1)), '">'
-                '[next >]'
+                '[next &gt;]'
                 '</a>'
             ));
         }
@@ -312,18 +312,37 @@ contract TerraformNavigator {
                 '</div>'
             );
         }
+        {
+            uint terraformsTotalSupply = ITerraforms(terraformsAddress).totalSupply();
+
+            bytes memory links;
+            if(tokenId > 1) {
+                links = abi.encodePacked('<a href="/viewHTML/', ToString.toString(tokenId - 1) , '">[&lt; prev]</a> ');
+            }
+            if(tokenId < terraformsTotalSupply) {
+                links = abi.encodePacked(links, '<a href="/viewHTML/', ToString.toString(tokenId + 1) , '">[next &gt;]</a> ');
+            }
+            page = abi.encodePacked(
+                '<div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; margin-bottom: 15px;">'
+                    '<div>'
+                        '<div>Parcel</div>'
+                        '<div style="font-size: 1.7rem; font-weight: bold;">', ToString.toString(tokenId), '</div>'
+                    '</div>'
+                    '<div>',
+                        links,
+                    '</div>'
+                '</div>',
+                page
+            );
+        }
         page = abi.encodePacked(
             headerHTML,
             '<div class="grid">'
                 '<div>'
                     '<img src="web3://0x', ToString.addressToString(terraformsAddress), ':', ToString.toString(block.chainid), '/tokenSVG/', ToString.toString(tokenId) ,'.svg">'
                 '</div>'
-                '<div>'
-                    '<div style="margin-bottom: 20px">'
-                        '<div>Parcel</div>'
-                        '<div style="font-size: 1.7rem; font-weight: bold;">', ToString.toString(tokenId), '</div>'
-                    '</div>',
-                page,
+                '<div>',
+                    page,
                 '</div>'
             '</div>'         
         );
