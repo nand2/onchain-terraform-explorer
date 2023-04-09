@@ -21,6 +21,9 @@ module.exports = {
         //     url: process.env.GOERLI_URL,
         //     // accounts: [process.env.GOERLI_PRIVATE_KEY],
         // }
+        // mainnet: {
+        //     url: process.env.MAINNET_URL,
+        // }
     },
     mocha: {
         timeout: 200000
