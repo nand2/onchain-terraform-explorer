@@ -53,4 +53,19 @@ library ToString {
         else return bytes1(uint8(b) + 0x57);
     }
 
+    function compare(string memory s1, string memory s2) internal pure returns (bool) {
+        return keccak256(abi.encodePacked(s1)) == keccak256(abi.encodePacked(s2));
+    }
+
+    function stringToUint(string memory s) internal pure returns (uint result) {
+        bytes memory b = bytes(s);
+        uint result = 0;
+        for (uint256 i = 0; i < b.length; i++) {
+            uint256 c = uint256(uint8(b[i]));
+            if (c >= 48 && c <= 57) {
+                result = result * 10 + (c - 48);
+            }
+        }
+        return result;
+    }
 }

@@ -101,11 +101,11 @@ describe("TerraformNavigator", function () {
     // const { terraformNavigator } = await loadFixture(deployFixture); // only with hardhat node
     const { terraformNavigator } = await deployFixture();
 
-    let gasUsage = await terraformNavigator.connect(user1).estimateGas.indexHTML(1);
-    let result = await terraformNavigator.connect(user1).indexHTML(1);
+    // let gasUsage = await terraformNavigator.connect(user1).estimateGas.indexHTML(1);
+    // let result = await terraformNavigator.connect(user1).indexHTML(1);
 
-    // console.log(result);
-    console.log("Gas used: ", gasUsage.toNumber())
+    // // console.log(result);
+    // console.log("Gas used: ", gasUsage.toNumber())
   });
 
 });

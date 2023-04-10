@@ -42,29 +42,51 @@ contract TerraformNavigator {
         statusToLabel[ITerraforms.Status.OriginTerraformed] = "Origin Terraformed";
     }
 
-    // function resolveMode() external pure returns (bytes32) {
-    //     return "manual";
-    // }
-
-    fallback(bytes calldata cdata) external returns (bytes memory) {
-        if (cdata.length == 0) {
-          return bytes("");
-        } else if (cdata[0] != 0x2f) {
-            // Should not happen since manual mode will have prefix "/" like "/....."
-            return bytes(abi.encode("incorrect path"));
-        }
-
-        // Frontpage call "/"
-        if(cdata.length == 1) {
-            // ABI.encode is required
-            return bytes(abi.encode(indexHTML(1)));
-        }
-
-        // Default : 404 (would be used if this onchain website was in manual mode)
-        return abi.encodePacked("404");
+    function resolveMode() external pure returns (bytes32) {
+        return "manual";
     }
 
-    function indexHTML(uint pageNumber) public view returns (string memory) {
+    fallback(bytes calldata cdata) external returns (bytes memory) {
+        if(cdata.length == 0) {
+            return bytes("");
+        }
+        else if(cdata[0] != 0x2f) {
+            return abi.encode("Incorrect path");
+        }
+
+        // Frontpage call
+        if (cdata.length == 1) {
+          return bytes(abi.encode(indexHTML(1)));
+        }
+        // /index/[uint]
+        else if(cdata.length >= 6 && ToString.compare(string(cdata[1:6]), "index")) {
+            uint page = 1;
+            if(cdata.length >= 8) {
+                page = ToString.stringToUint(string(cdata[7:]));
+            }
+            if(page == 0) {
+                return abi.encode("404");
+            }
+            return abi.encode(indexHTML(page));
+        }
+        // /view/[uint]
+        else if(cdata.length >= 5 && ToString.compare(string(cdata[1:5]), "view")) {
+            uint terraformsTotalSupply = ITerraforms(terraformsAddress).totalSupply();
+
+            uint tokenId = 1;
+            if(cdata.length >= 7) {
+                tokenId = ToString.stringToUint(string(cdata[6:]));
+            }
+            if(tokenId == 0 || tokenId > terraformsTotalSupply) {
+                return abi.encode("404");
+            }
+            return abi.encode(viewHTML(tokenId));
+        }
+
+        return abi.encode("404");
+    }
+
+    function indexHTML(uint pageNumber) internal view returns (string memory) {
 
         uint terraformsTotalSupply = ITerraforms(terraformsAddress).totalSupply();
         uint terraformsPerPage = 10;
@@ -124,11 +146,11 @@ contract TerraformNavigator {
             page = string(abi.encodePacked(
                 page,
                 '<div class="item">'
-                    '<a href="/viewHTML/', ToString.toString(tokenId), '">'
+                    '<a href="/view/', ToString.toString(tokenId), '">'
                         '<img src="web3://0x', ToString.addressToString(terraformsAddress) , ':', ToString.toString(block.chainid), '/tokenSVG/', ToString.toString(tokenId), '.svg">'
                     '</a>'
                     '<div class="detail">'
-                        '<a href="/viewHTML/', ToString.toString(tokenId), '">',
+                        '<a href="/view/', ToString.toString(tokenId), '">',
                             ToString.toString(tokenId),
                         '</a>'
                     '</div>'
@@ -150,7 +172,7 @@ contract TerraformNavigator {
         if(pageNumber > 1) {
             page = string(abi.encodePacked(
                 page,
-                '<a href="/indexHTML/', ToString.toString(int(pageNumber - 1)), '">'
+                '<a href="/index/', ToString.toString(int(pageNumber - 1)), '">'
                 '[&lt; prev]'
                 '</a>'
             ));
@@ -158,7 +180,7 @@ contract TerraformNavigator {
         if(pageNumber < pagesCount) {
             page = string(abi.encodePacked(
                 page,
-                '<a href="/indexHTML/', ToString.toString(int(pageNumber + 1)), '">'
+                '<a href="/index/', ToString.toString(int(pageNumber + 1)), '">'
                 '[next &gt;]'
                 '</a>'
             ));
@@ -184,7 +206,7 @@ contract TerraformNavigator {
 
     // }
 
-    function viewHTML(uint256 tokenId) public view returns (string memory) {
+    function viewHTML(uint256 tokenId) internal view returns (string memory) {
         // Main token data
         ITerraforms.TokenData memory tokenData = ITerraforms(terraformsAddress).tokenSupplementalData(tokenId);
         // Biome
@@ -317,10 +339,10 @@ contract TerraformNavigator {
 
             bytes memory links;
             if(tokenId > 1) {
-                links = abi.encodePacked('<a href="/viewHTML/', ToString.toString(tokenId - 1) , '">[&lt; prev]</a> ');
+                links = abi.encodePacked('<a href="/view/', ToString.toString(tokenId - 1) , '">[&lt; prev]</a> ');
             }
             if(tokenId < terraformsTotalSupply) {
-                links = abi.encodePacked(links, '<a href="/viewHTML/', ToString.toString(tokenId + 1) , '">[next &gt;]</a> ');
+                links = abi.encodePacked(links, '<a href="/view/', ToString.toString(tokenId + 1) , '">[next &gt;]</a> ');
             }
             page = abi.encodePacked(
                 '<div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; margin-bottom: 15px;">'
@@ -380,7 +402,7 @@ contract TerraformNavigator {
                     '</a>'
                 '</h4>'
                 '<div class="search-box">'
-                    '<input type="text" placeholder="Token id" onkeypress="if(event.keyCode === 13){let id = parseInt(event.srcElement.value); if(isNaN(id) == false && id > 0){ window.location=\'/viewHTML/\' + id }}">'
+                    '<input type="text" placeholder="Token id" onkeypress="if(event.keyCode === 13){let id = parseInt(event.srcElement.value); if(isNaN(id) == false && id > 0){ window.location=\'/view/\' + id }}">'
                 '</div>'
             '</div>';
     }
