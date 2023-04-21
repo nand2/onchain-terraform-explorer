@@ -8,9 +8,9 @@ import "./interfaces/ITerraformsData.sol";
 import "./interfaces/ITerraformsDataInterfaces.sol";
 
 import {IScriptyBuilder, WrappedScriptRequest} from "./interfaces/IScriptyBuilder.sol";
+import "./interfaces/IDecentralizedApp.sol";
 
-
-contract TerraformNavigator {
+contract TerraformNavigator is IDecentralizedApp {
 
     address immutable terraformsAddress;
     address immutable terraformsDataAddress;
@@ -84,6 +84,59 @@ contract TerraformNavigator {
         }
 
         return abi.encode("404");
+    }
+
+    // Test implementation of EIP-5219
+    function request(string[] memory resource, KeyValue[] memory params) external view returns (uint statusCode, string memory body, KeyValue[] memory headers) {
+
+        // Router!
+        // Frontpage
+        if(resource.length == 0) {
+            body = indexHTML(1);
+            statusCode = 200;
+            headers = new KeyValue[](1);
+            headers[0].key = "Content-type";
+            headers[0].value = "text/html";
+        }
+        // /index/[uint]
+        else if(resource.length >= 1 && resource.length <= 2 && ToString.compare(resource[0], "index")) {
+            uint page = 1;
+            if(resource.length == 2) {
+                page = ToString.stringToUint(resource[1]);
+            }
+            if(page == 0) {
+                statusCode = 404;
+            }
+            else {
+                body = indexHTML(page);
+                statusCode = 200;
+                headers = new KeyValue[](1);
+                headers[0].key = "Content-type";
+                headers[0].value = "text/html";
+            }
+        }
+        // /view/[uint]
+        else if(resource.length >= 1 && resource.length <= 2 && ToString.compare(resource[0], "view")) {
+            uint terraformsTotalSupply = ITerraforms(terraformsAddress).totalSupply();
+
+            uint tokenId = 1;
+            if(resource.length == 2) {
+                tokenId = ToString.stringToUint(resource[1]);
+            }
+            if(tokenId == 0 || tokenId > terraformsTotalSupply) {
+                statusCode = 404;
+            }
+            else {
+                body = viewHTML(tokenId);
+                statusCode = 200;
+                headers = new KeyValue[](1);
+                headers[0].key = "Content-type";
+                headers[0].value = "text/html";
+            }
+        }
+        else {
+            statusCode = 404;
+        }
     }
 
     function indexHTML(uint pageNumber) internal view returns (string memory) {

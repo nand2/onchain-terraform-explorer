@@ -59,7 +59,7 @@ library ToString {
 
     function stringToUint(string memory s) internal pure returns (uint result) {
         bytes memory b = bytes(s);
-        uint result = 0;
+        result = 0;
         for (uint256 i = 0; i < b.length; i++) {
             uint256 c = uint256(uint8(b[i]));
             if (c >= 48 && c <= 57) {
