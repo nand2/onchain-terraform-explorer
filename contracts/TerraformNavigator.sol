@@ -70,8 +70,16 @@ contract TerraformNavigator is IDecentralizedApp {
             return abi.encode(indexHTML(page));
         }
         // /view/[uint]
+        // Until ERC-7087 is accepted : do a proxy for the terraform SVGs
+        // /view/[uint].svg
         else if(cdata.length >= 5 && ToString.compare(string(cdata[1:5]), "view")) {
             uint terraformsTotalSupply = ITerraforms(terraformsAddress).totalSupply();
+
+            bool renderAsSvg = false;
+            if(cdata.length >= 11 && ToString.compare(string(cdata[cdata.length - 4:]), ".svg")) {
+                renderAsSvg = true;
+                cdata = cdata[:cdata.length - 4];
+            }
 
             uint tokenId = 1;
             if(cdata.length >= 7) {
@@ -79,6 +87,10 @@ contract TerraformNavigator is IDecentralizedApp {
             }
             if(tokenId == 0 || tokenId > terraformsTotalSupply) {
                 return abi.encode("404");
+            }
+
+            if(renderAsSvg) {
+                return abi.encode(ITerraforms(terraformsAddress).tokenSVG(tokenId));
             }
             return abi.encode(viewHTML(tokenId));
         }
@@ -200,7 +212,9 @@ contract TerraformNavigator is IDecentralizedApp {
                 page,
                 '<div class="item">'
                     '<a href="/view/', ToString.toString(tokenId), '">'
-                        '<img src="web3://0x', ToString.addressToString(terraformsAddress) , ':', ToString.toString(block.chainid), '/tokenSVG/', ToString.toString(tokenId), '.svg">'
+                        '<img src="/view/', ToString.toString(tokenId), '.svg">'
+                        // Wait until ERC-7087 is accepted
+                        // '<img src="web3://0x', ToString.addressToString(terraformsAddress) , ':', ToString.toString(block.chainid), '/tokenSVG/', ToString.toString(tokenId), '.svg">'
                     '</a>'
                     '<div class="detail">'
                         '<a href="/view/', ToString.toString(tokenId), '">',
@@ -414,7 +428,9 @@ contract TerraformNavigator is IDecentralizedApp {
             headerHTML,
             '<div class="grid">'
                 '<div>'
-                    '<img src="web3://0x', ToString.addressToString(terraformsAddress), ':', ToString.toString(block.chainid), '/tokenSVG/', ToString.toString(tokenId) ,'.svg">'
+                    '<img src="/view/', ToString.toString(tokenId) ,'.svg">'
+                    // Wait until ERC-7087 is accepted
+                    // '<img src="web3://0x', ToString.addressToString(terraformsAddress), ':', ToString.toString(block.chainid), '/tokenSVG/', ToString.toString(tokenId) ,'.svg">'
                 '</div>'
                 '<div>',
                     page,
