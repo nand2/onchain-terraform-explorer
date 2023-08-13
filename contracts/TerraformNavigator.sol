@@ -43,65 +43,12 @@ contract TerraformNavigator is IDecentralizedApp {
     }
 
     function resolveMode() external pure returns (bytes32) {
-        return "manual";
+        return "5219";
     }
 
-    fallback(bytes calldata cdata) external returns (bytes memory) {
-        if(cdata.length == 0) {
-            return bytes("");
-        }
-        else if(cdata[0] != 0x2f) {
-            return abi.encode("Incorrect path");
-        }
-
-        // Frontpage call
-        if (cdata.length == 1) {
-          return bytes(abi.encode(indexHTML(1)));
-        }
-        // /index/[uint]
-        else if(cdata.length >= 6 && ToString.compare(string(cdata[1:6]), "index")) {
-            uint page = 1;
-            if(cdata.length >= 8) {
-                page = ToString.stringToUint(string(cdata[7:]));
-            }
-            if(page == 0) {
-                return abi.encode("404");
-            }
-            return abi.encode(indexHTML(page));
-        }
-        // /view/[uint]
-        // Until ERC-7087 is accepted : do a proxy for the terraform SVGs
-        // /view/[uint].svg
-        else if(cdata.length >= 5 && ToString.compare(string(cdata[1:5]), "view")) {
-            uint terraformsTotalSupply = ITerraforms(terraformsAddress).totalSupply();
-
-            bool renderAsSvg = false;
-            if(cdata.length >= 11 && ToString.compare(string(cdata[cdata.length - 4:]), ".svg")) {
-                renderAsSvg = true;
-                cdata = cdata[:cdata.length - 4];
-            }
-
-            uint tokenId = 1;
-            if(cdata.length >= 7) {
-                tokenId = ToString.stringToUint(string(cdata[6:]));
-            }
-            if(tokenId == 0 || tokenId > terraformsTotalSupply) {
-                return abi.encode("404");
-            }
-
-            if(renderAsSvg) {
-                return abi.encode(ITerraforms(terraformsAddress).tokenSVG(tokenId));
-            }
-            return abi.encode(viewHTML(tokenId));
-        }
-
-        return abi.encode("404");
-    }
-
-    // Test implementation of EIP-5219
+    // Implementation of the ERC-5219 interface
     function request(string[] memory resource, KeyValue[] memory params) external view returns (uint statusCode, string memory body, KeyValue[] memory headers) {
 
-        // Router!
         // Frontpage
         if(resource.length == 0) {
             body = indexHTML(1);
@@ -128,13 +75,10 @@ contract TerraformNavigator is IDecentralizedApp {
             }
         }
         // /view/[uint]
-        else if(resource.length >= 1 && resource.length <= 2 && ToString.compare(resource[0], "view")) {
+        else if(resource.length == 2 && ToString.compare(resource[0], "view")) {
             uint terraformsTotalSupply = ITerraforms(terraformsAddress).totalSupply();
 
-            uint tokenId = 1;
-            if(resource.length == 2) {
-                tokenId = ToString.stringToUint(resource[1]);
-            }
+            uint tokenId = ToString.stringToUint(resource[1]);
             if(tokenId == 0 || tokenId > terraformsTotalSupply) {
                 statusCode = 404;
             }
@@ -144,6 +88,23 @@ contract TerraformNavigator is IDecentralizedApp {
                 headers = new KeyValue[](1);
                 headers[0].key = "Content-type";
                 headers[0].value = "text/html";
+            }
+        }
+        // /view/[uint]/svg
+        // This proxy is necessary until ERC-7087 is accepted
+        else if(resource.length == 3 && ToString.compare(resource[0], "view") && ToString.compare(resource[2], "svg")) {
+            uint terraformsTotalSupply = ITerraforms(terraformsAddress).totalSupply();
+
+            uint tokenId = ToString.stringToUint(resource[1]);
+            if(tokenId == 0 || tokenId > terraformsTotalSupply) {
+                statusCode = 404;
+            }
+            else {
+                body = ITerraforms(terraformsAddress).tokenSVG(tokenId);
+                statusCode = 200;
+                headers = new KeyValue[](1);
+                headers[0].key = "Content-type";
+                headers[0].value = "image/svg+xml";
             }
         }
         else {
@@ -212,9 +173,9 @@ contract TerraformNavigator is IDecentralizedApp {
                 page,
                 '<div class="item">'
                     '<a href="/view/', ToString.toString(tokenId), '">'
-                        '<img src="/view/', ToString.toString(tokenId), '.svg">'
+                        '<img src="/view/', ToString.toString(tokenId), '/svg">'
                         // Wait until ERC-7087 is accepted
-                        // '<img src="web3://0x', ToString.addressToString(terraformsAddress) , ':', ToString.toString(block.chainid), '/tokenSVG/', ToString.toString(tokenId), '.svg">'
+                        // '<img src="web3://0x', ToString.addressToString(terraformsAddress) , ':', ToString.toString(block.chainid), '/tokenSVG/', ToString.toString(tokenId), '?mime.content=image%2Fsvg%2Bxml">'
                     '</a>'
                     '<div class="detail">'
                         '<a href="/view/', ToString.toString(tokenId), '">',
@@ -428,9 +389,9 @@ contract TerraformNavigator is IDecentralizedApp {
             headerHTML,
             '<div class="grid">'
                 '<div>'
-                    '<img src="/view/', ToString.toString(tokenId) ,'.svg">'
+                    '<img src="/view/', ToString.toString(tokenId) ,'/svg">'
                     // Wait until ERC-7087 is accepted
-                    // '<img src="web3://0x', ToString.addressToString(terraformsAddress), ':', ToString.toString(block.chainid), '/tokenSVG/', ToString.toString(tokenId) ,'.svg">'
+                    // '<img src="web3://0x', ToString.addressToString(terraformsAddress), ':', ToString.toString(block.chainid), '/tokenSVG/', ToString.toString(tokenId) ,'?mime.content=image%2Fsvg%2Bxml">'
                 '</div>'
                 '<div>',
                     page,
