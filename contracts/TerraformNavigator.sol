@@ -46,7 +46,7 @@ contract TerraformNavigator is IDecentralizedApp {
         return "5219";
     }
 
-    // Implementation of the ERC-5219 interface
+    // Implementation for the ERC-5219 mode
     function request(string[] memory resource, KeyValue[] memory params) external view returns (uint statusCode, string memory body, KeyValue[] memory headers) {
 
         // Frontpage
@@ -111,6 +111,59 @@ contract TerraformNavigator is IDecentralizedApp {
             statusCode = 404;
         }
     }
+
+    // Implementation for the manual mode
+    // fallback(bytes calldata cdata) external returns (bytes memory) {
+    //     if(cdata.length == 0) {
+    //         return bytes("");
+    //     }
+    //     else if(cdata[0] != 0x2f) {
+    //         return abi.encode("Incorrect path");
+    //     }
+
+    //     // Frontpage call
+    //     if (cdata.length == 1) {
+    //       return bytes(abi.encode(indexHTML(1)));
+    //     }
+    //     // /index/[uint]
+    //     else if(cdata.length >= 6 && ToString.compare(string(cdata[1:6]), "index")) {
+    //         uint page = 1;
+    //         if(cdata.length >= 8) {
+    //             page = ToString.stringToUint(string(cdata[7:]));
+    //         }
+    //         if(page == 0) {
+    //             return abi.encode("404");
+    //         }
+    //         return abi.encode(indexHTML(page));
+    //     }
+    //     // /view/[uint]
+    //     // Until ERC-7087 is accepted : do a proxy for the terraform SVGs
+    //     // /view/[uint].svg
+    //     else if(cdata.length >= 5 && ToString.compare(string(cdata[1:5]), "view")) {
+    //         uint terraformsTotalSupply = ITerraforms(terraformsAddress).totalSupply();
+
+    //         bool renderAsSvg = false;
+    //         if(cdata.length >= 11 && ToString.compare(string(cdata[cdata.length - 4:]), ".svg")) {
+    //             renderAsSvg = true;
+    //             cdata = cdata[:cdata.length - 4];
+    //         }
+
+    //         uint tokenId = 1;
+    //         if(cdata.length >= 7) {
+    //             tokenId = ToString.stringToUint(string(cdata[6:]));
+    //         }
+    //         if(tokenId == 0 || tokenId > terraformsTotalSupply) {
+    //             return abi.encode("404");
+    //         }
+
+    //         if(renderAsSvg) {
+    //             return abi.encode(ITerraforms(terraformsAddress).tokenSVG(tokenId));
+    //         }
+    //         return abi.encode(viewHTML(tokenId));
+    //     }
+
+    //     return abi.encode("404");
+    // }
 
     function indexHTML(uint pageNumber) internal view returns (string memory) {
 
@@ -436,5 +489,7 @@ contract TerraformNavigator is IDecentralizedApp {
                 '</div>'
             '</div>';
     }
+
+
 
 }
